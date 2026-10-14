@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Banāt al-Ummah | بنات الأمة
 
 **Four Sisters. One Pursuit. A Journey Toward Beneficial Knowledge.**
@@ -128,3 +129,7 @@ For questions, inquiries, or information about our journey:
 **Banāt al-Ummah | بنات الأمة**
 
 *Seeking knowledge. Strengthening sisterhood. Growing in faith.*
+=======
+# bannatalummah
+Single page website describing journey of 4 women seeking knowledge.
+>>>>>>> origin/main
