@@ -42,13 +42,10 @@
       <a class="brand" href="index.html"
         aria-label="Banāt al-Ummah homepage">
 
-        <span class="brand-ar" lang="ar" dir="rtl">
-          بَنَاتُ الْأُمَّةِ
-        </span>
-
-        <span class="brand-en">
-          Banāt al-Ummah
-        </span>
+        <img
+          class="brand-logo"
+          src="assets/icons/logo.png"
+          alt="Banāt al-Ummah">
 
       </a>
 
@@ -93,9 +90,24 @@
 
     <section class="hero" aria-labelledby="hero-title">
 
-      <div class="hero-photo"
-        role="img"
-        aria-label="Mosque architecture in Cairo, Egypt">
+      <!-- HERO BACKGROUND VIDEO -->
+      <div class="hero-video-wrapper" aria-hidden="true">
+
+        <video
+          class="hero-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="assets/images/hero-cairo.jpg">
+
+          <source
+            src="assets/videos/hero-background.mp4"
+            type="video/mp4">
+
+        </video>
+
       </div>
 
       <div class="container hero-inner">
@@ -142,7 +154,9 @@
       <div class="container mission-grid">
 
         <div class="mission-image" aria-hidden="true">
-          <span class="leaf-mark">❧</span>
+          <img
+            src="assets/images/hero-home.jpg"
+            alt="">
         </div>
 
         <div class="mission-copy">
@@ -175,6 +189,70 @@
 
         </div>
       </div>
+    </section>
+
+    <!-- ========================================
+         OUR STORY VIDEO
+    ========================================= -->
+
+    <section class="section story-video-section"
+      id="watch-our-story"
+      aria-labelledby="story-video-title">
+
+      <div class="container">
+
+        <div class="story-video-heading">
+
+          <p class="eyebrow">A Message From Us</p>
+
+          <h2 id="story-video-title">
+            Hear Our Story
+          </h2>
+
+          <p>
+            Learn more about our intentions,
+            our educational goals, and why
+            this journey means so much to us.
+          </p>
+
+        </div>
+
+        <div class="story-video-container">
+
+          <video
+            class="story-video"
+            controls
+            playsinline
+            preload="metadata"
+            poster="assets/images/hero-group.jpg">
+
+            <source
+              src="assets/videos/our-story.mov"
+              type="video/mp4">
+
+            Your browser does not support
+            HTML5 video.
+
+          </video>
+
+        </div>
+
+        <div class="story-video-footer">
+
+          <p>
+            Help us turn this intention
+            into a reality, in shā’ Allāh.
+          </p>
+
+          <a class="btn btn-primary"
+            data-donate href="#support">
+            ♡ &nbsp;Support Our Journey
+          </a>
+
+        </div>
+
+      </div>
+
     </section>
 
     <!-- ========================================
@@ -266,72 +344,80 @@
         <div class="sisters-grid">
 
           <!-- Sister 1 -->
-          <article class="sister-card">
+          <a href="about.html#yazmine" class="sister-card-link">
+            <article class="sister-card">
 
-            <div class="sister-image">
-              <img
-                src="assets/images/sisters/sister1.jpg"
-                alt="Portrait or chosen image for Sister 1"
-                loading="lazy">
-            </div>
+              <div class="sister-image">
+                <img
+                  src="assets/images/sisters/sister1.png"
+                  alt="Portrait of Yazmine W"
+                  loading="lazy">
+              </div>
 
-            <div class="sister-body">
-              <h3>Sister 1</h3>
-              <p>Meet one of the sisters.</p>
-            </div>
+              <div class="sister-body">
+                <h3>Yazmine W</h3>
+                <p>Meet one of the sisters.</p>
+              </div>
 
-          </article>
+            </article>
+          </a>
 
           <!-- Sister 2 -->
-          <article class="sister-card">
+          <a href="about.html#annika" class="sister-card-link">
+            <article class="sister-card">
 
-            <div class="sister-image">
-              <img
-                src="assets/images/sisters/sister2.jpg"
-                alt="Portrait or chosen image for Sister 2"
-                loading="lazy">
-            </div>
+              <div class="sister-image">
+                <img
+                  src="assets/images/sisters/sister2.png"
+                  alt="Portrait of Annika C"
+                  loading="lazy">
+              </div>
 
-            <div class="sister-body">
-              <h3>Sister 2</h3>
-              <p>Meet one of the sisters.</p>
-            </div>
+              <div class="sister-body">
+                <h3>Annika C</h3>
+                <p>Meet one of the sisters.</p>
+              </div>
 
-          </article>
+            </article>
+          </a>
 
           <!-- Sister 3 -->
-          <article class="sister-card">
+          <a href="about.html#anngel" class="sister-card-link">
+            <article class="sister-card">
 
-            <div class="sister-image">
-              <img
-                src="assets/images/sisters/sister3.jpg"
-                alt="Portrait or chosen image for Sister 3"
-                loading="lazy">
-            </div>
+              <div class="sister-image">
+                <img
+                  src="assets/images/sisters/sister3.png"
+                  alt="Portrait of Anngel J"
+                  loading="lazy">
+              </div>
 
-            <div class="sister-body">
-              <h3>Sister 3</h3>
-              <p>Meet one of the sisters.</p>
-            </div>
+              <div class="sister-body">
+                <h3>Anngel J</h3>
+                <p>Meet one of the sisters.</p>
+              </div>
 
-          </article>
+            </article>
+          </a>
 
           <!-- Sister 4 -->
-          <article class="sister-card">
+          <a href="about.html#kamilah" class="sister-card-link">
+            <article class="sister-card">
 
-            <div class="sister-image">
-              <img
-                src="assets/images/sisters/sister4.jpg"
-                alt="Portrait or chosen image for Sister 4"
-                loading="lazy">
-            </div>
+              <div class="sister-image">
+                <img
+                  src="assets/images/sisters/sister4.png"
+                  alt="Portrait of Kamilah L"
+                  loading="lazy">
+              </div>
 
-            <div class="sister-body">
-              <h3>Sister 4</h3>
-              <p>Meet one of the sisters.</p>
-            </div>
+              <div class="sister-body">
+                <h3>Kamilah L</h3>
+                <p>Meet one of the sisters.</p>
+              </div>
 
-          </article>
+            </article>
+          </a>
 
         </div>
 
@@ -418,13 +504,10 @@
 
         <a class="brand" href="index.html">
 
-          <span class="brand-ar" lang="ar" dir="rtl">
-            بَنَاتُ الْأُمَّةِ
-          </span>
-
-          <span class="brand-en">
-            Banāt al-Ummah
-          </span>
+          <img
+            class="brand-logo"
+            src="assets/icons/logo.png"
+            alt="Banāt al-Ummah">
 
         </a>
 
