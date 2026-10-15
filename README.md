@@ -104,7 +104,7 @@ Replace `USERNAME` with the repository owner's GitHub username.
 
 ## Support Our Journey
 
-Our fundraising goal is **$28,000** to help cover educational programs, transportation, accommodation, and other necessary travel expenses.
+Our fundraising goal is **$30,000** to help cover educational programs, transportation, accommodation, and other necessary travel expenses.
 
 Donations will be processed securely through our official LaunchGood or Givebutter fundraising campaign.
 
