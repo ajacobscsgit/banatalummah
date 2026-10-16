@@ -18,7 +18,7 @@
 // Replace with your official LaunchGood
 // or Givebutter fundraising campaign URL.
 
-const DONATION_URL = "";
+const DONATION_URL = "https://givebutter.com/ilmihsan";
 
 /* ==========================================
    2. MOBILE NAVIGATION
