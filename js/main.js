@@ -208,7 +208,7 @@ function initializeSocialLinks() {
     },
     {
       label: "YouTube",
-      address: "https://www.youtube.com/@banatalummah",
+      address: "https://www.youtube.com/channel/UCNI7_gzxOD7PwkKiajjPYfg",
       paths: [
         ["path", { d: "M22 12c0 2-.2 4-.6 5.2-.3.8-.9 1.4-1.7 1.7-1.3.4-7.7.4-7.7.4s-6.4 0-7.7-.4c-.8-.3-1.4-.9-1.7-1.7C2.2 16 2 14 2 12s.2-4 .6-5.2c.3-.8.9-1.4 1.7-1.7C5.6 4.7 12 4.7 12 4.7s6.4 0 7.7.4c.8.3 1.4.9 1.7 1.7.4 1.2.6 3.2.6 5.2Z" }],
         ["path", { d: "m10 8.5 5.5 3.5-5.5 3.5z", fill: "currentColor", stroke: "none" }]
@@ -223,16 +223,9 @@ function initializeSocialLinks() {
     },
     {
       label: "TikTok",
-      address: "https://www.tiktok.com/@banatalummah",
+      address: "https://www.tiktok.com/@bannatalummah",
       paths: [
         ["path", { d: "M15 3h3c.2 2 1.3 3.7 3 4.5v3.2a9 9 0 0 1-3-1v6.1a6.3 6.3 0 1 1-6.3-6.3c.5 0 1 .1 1.5.2v3.3a3 3 0 1 0 1.8 2.8V3Z" }]
-      ]
-    },
-    {
-      label: "X",
-      address: "https://x.com/banatalummah",
-      paths: [
-        ["path", { d: "M4 3h4.5l11.5 18h-4.5L4 3Zm0 18 7-8m2-2 7-8", "stroke-width": "2" }]
       ]
     },
     {
