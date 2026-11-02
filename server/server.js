@@ -28,7 +28,10 @@ const expectedPublicPrefix =
   PAYMENT_MODE === "live" ? "pk_live_" : "pk_test_";
 
 if (
-  !SECRET_KEY.startsWith(expectedSecretPrefix) ||
+  !(
+    SECRET_KEY.startsWith(expectedSecretPrefix) ||
+    SECRET_KEY.startsWith(`rk_${PAYMENT_MODE}_`)
+  ) ||
   !PUBLISHABLE_KEY.startsWith(expectedPublicPrefix) ||
   SECRET_KEY.includes("REPLACE_ME") ||
   PUBLISHABLE_KEY.includes("REPLACE_ME")
