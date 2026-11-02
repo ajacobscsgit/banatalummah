@@ -75,7 +75,7 @@
 
         <a class="btn btn-primary nav-donate"
           data-donate href="donate.html">
-          Donate Now <span aria-hidden="true">♡</span>
+          Give Sadaqah <span aria-hidden="true">♡</span>
         </a>
 
       </nav>
@@ -134,6 +134,16 @@
           <div class="hero-fundraising">
             <strong>$30,000</strong>
             <span>Our Fundraising Goal</span>
+            <p id="hero-fundraising-total" role="status" aria-live="polite">
+              Loading confirmed contributions…
+            </p>
+            <progress
+              id="hero-fundraising-progress"
+              max="3000000"
+              value="0"
+              aria-label="Confirmed contributions toward our $30,000 goal"
+            ></progress>
+            <span id="hero-fundraising-detail"></span>
           </div>
 
           <div class="hero-actions">
@@ -142,7 +152,7 @@
                class="btn-hero-donate"
                data-donate>
               <span aria-hidden="true">♡</span>
-              Donate to Support Our Journey
+              Give Sadaqah to Support Our Journey
               <span aria-hidden="true">↗</span>
             </a>
 
@@ -628,7 +638,7 @@
             data-donate
             href="donate.html">
 
-            ♡ &nbsp;Donate to Our Journey
+            ♡ &nbsp;Give Sadaqah to Our Journey
             <span aria-hidden="true">↗</span>
 
           </a>

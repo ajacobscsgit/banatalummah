@@ -80,6 +80,72 @@
   </header>
 
   <main id="main">
+    <section
+      id="payment-confirmation"
+      class="container payment-confirmation"
+      aria-labelledby="confirmation-title"
+      tabindex="-1"
+      hidden
+    >
+      <p class="eyebrow">Your Contribution</p>
+
+      <h2 id="confirmation-title">Checking your payment…</h2>
+
+      <p id="confirmation-message" role="status" aria-live="polite"></p>
+
+      <div id="confirmation-thanks" hidden>
+        <p>
+          Jazakum Allahu khayran for supporting our pursuit of beneficial
+          knowledge. May Allah accept your generosity, bless your provision,
+          and make the benefit of this learning a source of lasting reward.
+        </p>
+
+        <div class="hadith-card">
+          <p>
+            The Prophet ﷺ taught that ongoing charity, beneficial knowledge,
+            and a righteous child’s prayers can continue to benefit a person
+            after death.
+          </p>
+
+          <a
+            href="https://sunnah.com/muslim:1631"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Meaning of Sahih Muslim 1631
+          </a>
+        </div>
+
+        <div class="hadith-card">
+          <p>
+            In a narration about two brothers—one earning a living and
+            the other attending the Prophet ﷺ—the Prophet ﷺ said:
+          </p>
+
+          <blockquote>
+            “Perhaps you are provided for because of him.”
+          </blockquote>
+
+          <a
+            href="https://sunnah.com/tirmidhi:2345"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Jami‘ at-Tirmidhi 2345
+          </a>
+        </div>
+
+        <p>
+          We pray that the knowledge gained and shared through this journey
+          brings continuing benefit, inshaAllah.
+        </p>
+      </div>
+
+      <button class="btn btn-primary" id="check-payment-again" type="button">
+        Check Payment Status
+      </button>
+    </section>
+
     <div class="container donate-intro">
       <p class="eyebrow">Four Sisters · Summer 2027</p>
 
@@ -183,13 +249,13 @@
           </button>
 
           <p class="availability" id="payment-availability">
-            Test mode — no real money will be collected.
+            Checking payment availability…
           </p>
 
           <noscript>
             <p>
-              Enable JavaScript to preview your selected amount.
-              Online payments are not available yet.
+              JavaScript is required for online contributions.
+              Email banatalummah@gmail.com if you need assistance.
             </p>
           </noscript>
         </form>
@@ -210,6 +276,24 @@
         <div class="goal-display">
           <span>Our Fundraising Goal</span>
           <strong>$30,000</strong>
+
+          <p id="fundraising-total" role="status" aria-live="polite">
+            Loading confirmed contributions…
+          </p>
+
+          <progress
+            id="fundraising-progress"
+            max="3000000"
+            value="0"
+            aria-label="Confirmed contributions toward our $30,000 goal"
+          ></progress>
+
+          <p id="fundraising-detail"></p>
+
+          <small>
+            Confirmed contributions before processing fees, minus refunds.
+            Disputed payments are excluded.
+          </small>
 
           <span>
             Supporting four students on our planned
@@ -291,6 +375,19 @@
         <a href="journey.html">Our Journey</a>
         <a href="mailto:banatalummah@gmail.com">Email Us</a>
       </nav>
+    </div>
+
+    <div class="container footer-social">
+      <h2>Follow Our Journey</h2>
+
+      <nav
+        id="social-links"
+        aria-label="Banāt al-Ummah social media"
+      ></nav>
+
+      <p id="social-links-note" hidden>
+        Our social links will be available here soon.
+      </p>
     </div>
 
     <div class="container footer-bottom">

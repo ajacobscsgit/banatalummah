@@ -526,6 +526,26 @@ p {
   font-size: 0.85rem;
 }
 
+.hero-fundraising #hero-fundraising-total {
+  margin: 8px 0 0;
+  color: #fffdf7;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.hero-fundraising #hero-fundraising-progress {
+  display: block;
+  width: min(100%, 360px);
+  height: 12px;
+  margin: 8px 0 2px;
+  accent-color: #e1bd82;
+}
+
+.hero-fundraising #hero-fundraising-detail {
+  color: #e4d7c2;
+  font-size: 0.8rem;
+}
+
 .hero-actions {
   display: flex;
   align-items: center;
@@ -1106,6 +1126,31 @@ p {
   color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 5px;
+}
+
+.footer-social {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.footer-social h2 {
+  margin-bottom: 14px;
+  font-size: 1rem;
+}
+
+#social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+#social-links a {
+  text-underline-offset: 4px;
+}
+
+#social-links a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
 }
 
 .footer-bottom {

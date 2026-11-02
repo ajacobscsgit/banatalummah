@@ -28,10 +28,41 @@
   let busy = false;
   let amountInCents = null;
   let paymentMode = "test";
+  let activeSessionId = null;
+  let confirmationTimer = null;
+  let confirmationAttempts = 0;
+  let checkingPayment = false;
+  let refreshingProgress = false;
 
   const availability = document.getElementById(
     "payment-availability"
   );
+  const paymentConfirmation = document.getElementById(
+    "payment-confirmation"
+  );
+  const confirmationTitle = document.getElementById(
+    "confirmation-title"
+  );
+  const confirmationMessage = document.getElementById(
+    "confirmation-message"
+  );
+  const confirmationThanks = document.getElementById(
+    "confirmation-thanks"
+  );
+  const checkPaymentAgain = document.getElementById(
+    "check-payment-again"
+  );
+  const fundraisingTotal = document.getElementById(
+    "fundraising-total"
+  );
+  const fundraisingProgress = document.getElementById(
+    "fundraising-progress"
+  );
+  const fundraisingDetail = document.getElementById(
+    "fundraising-detail"
+  );
+  const returnedSessionId = new URLSearchParams(window.location.search)
+    .get("session_id");
 
   async function requestJSON(path, options = {}) {
     const response = await fetch(`${API_URL}${path}`, options);
@@ -50,6 +81,173 @@
 
     return data;
   }
+
+  async function refreshProgress() {
+    if (refreshingProgress) return;
+    refreshingProgress = true;
+
+    try {
+      const progress = await requestJSON("/api/progress");
+
+      if (
+        !Number.isSafeInteger(progress.raisedInCents) ||
+        progress.raisedInCents < 0 ||
+        !Number.isSafeInteger(progress.goalInCents) ||
+        progress.goalInCents <= 0 ||
+        !Number.isSafeInteger(progress.contributionCount) ||
+        progress.contributionCount < 0
+      ) {
+        throw new Error("Invalid fundraising total.");
+      }
+
+      const percent =
+        progress.raisedInCents / progress.goalInCents * 100;
+
+      fundraisingTotal.textContent =
+        `${money.format(progress.raisedInCents / 100)} raised of ` +
+        `${money.format(progress.goalInCents / 100)}`;
+      fundraisingProgress.max = progress.goalInCents;
+      fundraisingProgress.value = Math.min(
+        progress.raisedInCents,
+        progress.goalInCents
+      );
+      fundraisingProgress.setAttribute(
+        "aria-valuetext",
+        `${money.format(progress.raisedInCents / 100)} raised, ` +
+        `${percent.toFixed(1)} percent of goal`
+      );
+      fundraisingDetail.textContent =
+        `${percent.toFixed(1)}% of our goal · ` +
+        `${progress.contributionCount} contributions`;
+    } catch {
+      fundraisingTotal.textContent =
+        "Confirmed total temporarily unavailable. Please check again shortly.";
+    } finally {
+      refreshingProgress = false;
+    }
+  }
+
+  async function verifyPayment(sessionId, focus = false) {
+    if (checkingPayment) return;
+
+    checkingPayment = true;
+    clearTimeout(confirmationTimer);
+
+    paymentConfirmation.hidden = false;
+    checkPaymentAgain.disabled = true;
+    confirmationThanks.hidden = true;
+
+    if (focus) {
+      paymentConfirmation.focus();
+      paymentConfirmation.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    try {
+      const payment = await requestJSON(
+        `/api/session-status?session_id=${encodeURIComponent(sessionId)}`
+      );
+
+      if (payment.mode !== "live" && payment.mode !== "test") {
+        throw new Error("The server returned an invalid payment mode.");
+      }
+
+      if (payment.status === "paid") {
+        if (!Number.isSafeInteger(payment.amountInCents)) {
+          throw new Error("The server returned an invalid payment amount.");
+        }
+
+        confirmationTitle.textContent =
+          payment.mode === "test"
+            ? "Test payment confirmed"
+            : "Thank you—your contribution is confirmed.";
+
+        confirmationMessage.textContent =
+          payment.mode === "test"
+            ? "This was a test payment. No real money was collected, " +
+              "and it does not count toward our goal."
+            : `Your ${money.format(payment.amountInCents / 100)} USD ` +
+              "contribution was received. Jazakum Allahu khayran.";
+
+        if (
+          payment.mode === "live" &&
+          payment.refundedInCents > 0
+        ) {
+          confirmationMessage.textContent +=
+            ` A refund of ${money.format(payment.refundedInCents / 100)} ` +
+            "has since been recorded.";
+        }
+
+        confirmationThanks.hidden = payment.mode !== "live";
+        checkPaymentAgain.hidden = true;
+        contributionForm.hidden = true;
+        document.getElementById("checkout-form").hidden = true;
+        checkoutStatus.textContent = "";
+
+        await refreshProgress();
+        return;
+      }
+
+      checkPaymentAgain.hidden = false;
+
+      if (payment.status === "refunded") {
+        confirmationTitle.textContent = "Payment refunded";
+        confirmationMessage.textContent =
+          "Stripe records this contribution as fully refunded.";
+      } else if (payment.status === "disputed") {
+        confirmationTitle.textContent = "Payment under review";
+        confirmationMessage.textContent =
+          "This payment has a dispute. Contact banatalummah@gmail.com " +
+          "if you need assistance.";
+      } else if (payment.status === "not_completed") {
+        confirmationTitle.textContent = "Payment not completed";
+        confirmationMessage.textContent =
+          "This checkout expired or was canceled. " +
+          "You can start a new contribution below.";
+
+        contributionForm.hidden = false;
+        checkPaymentAgain.hidden = true;
+        busy = false;
+        updateAmount();
+      } else {
+        confirmationTitle.textContent = "Payment confirmation pending";
+        confirmationMessage.textContent =
+          "We are waiting for Stripe to confirm your payment. " +
+          "Please do not submit another contribution while it is pending.";
+
+        confirmationAttempts += 1;
+
+        if (confirmationAttempts < 12) {
+          confirmationTimer = setTimeout(
+            () => verifyPayment(sessionId),
+            5000
+          );
+        }
+      }
+    } catch {
+      confirmationTitle.textContent = "Unable to check payment status";
+      confirmationMessage.textContent =
+        "We could not verify the result right now. This does not mean " +
+        "your payment failed. Check again or contact " +
+        "banatalummah@gmail.com before paying again.";
+
+      checkPaymentAgain.hidden = false;
+    } finally {
+      checkingPayment = false;
+      checkPaymentAgain.disabled = false;
+    }
+  }
+
+  checkPaymentAgain.addEventListener("click", () => {
+    const sessionId = returnedSessionId || activeSessionId;
+
+    if (sessionId) {
+      confirmationAttempts = 0;
+      verifyPayment(sessionId);
+    }
+  });
 
   function updateAmount() {
     const customValue = customAmount.value.trim();
@@ -141,6 +339,12 @@
         throw new Error("The server did not return a checkout session.");
       }
 
+      if (!session.session_id) {
+        throw new Error("The server did not return a payment reference.");
+      }
+
+      activeSessionId = session.session_id;
+
       const checkout = stripe.initCheckoutFormSdk({
         clientSecret: session.client_secret,
 
@@ -183,8 +387,10 @@
               "The payment could not be completed. Check the form and try again.";
           } else {
             checkoutStatus.textContent =
-              "Your payment details have been submitted. " +
-              "Please wait for payment confirmation before trying again.";
+              "Checking your payment with Stripe…";
+
+            confirmationAttempts = 0;
+            await verifyPayment(activeSessionId, true);
           }
         } catch {
           checkoutStatus.textContent =
@@ -220,6 +426,20 @@
 
   updateAmount();
 
+  void refreshProgress();
+
+  setInterval(() => {
+    if (!document.hidden) {
+      void refreshProgress();
+    }
+  }, 65000);
+
+  if (returnedSessionId) {
+    busy = true;
+    contributionForm.hidden = true;
+    await verifyPayment(returnedSessionId, true);
+  }
+
   try {
     if (typeof window.Stripe !== "function") {
       throw new Error("Stripe’s payment script did not load.");
@@ -253,8 +473,10 @@
     checkoutButton.textContent = "Checkout Unavailable";
     checkoutButton.disabled = true;
 
-    checkoutStatus.textContent =
-      `${error.message} Make sure your backend is running and ` +
-      "FRONTEND_URL in server/.env matches your website preview address.";
+    if (checkoutStatus) {
+      checkoutStatus.textContent =
+        `${error.message} Make sure your backend is running and ` +
+        "FRONTEND_URL in server/.env matches your website preview address.";
+    }
   }
 })();
