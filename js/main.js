@@ -230,7 +230,7 @@ function initializeSocialLinks() {
     },
     {
       label: "Facebook",
-      address: "https://www.facebook.com/banatalummah/",
+      address: "https://www.facebook.com/share/1EpaCRyccP/",
       paths: [
         ["path", { d: "M13.5 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8z", fill: "currentColor", stroke: "none" }]
       ]
