@@ -2823,3 +2823,37 @@ html {
     padding-top: 40px;
   }
 }
+
+/* Homepage fundraising progress */
+body:has(.hero) .hero #hero-fundraising-total,
+body:has(.hero) .hero #hero-fundraising-detail {
+  color: #fff5e5;
+}
+
+.hero #hero-fundraising-progress {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 12px;
+  margin: 18px 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 25%);
+  accent-color: #e3bf82;
+}
+
+.hero #hero-fundraising-progress::-webkit-progress-bar {
+  background: rgb(255 255 255 / 25%);
+  border-radius: 999px;
+}
+
+.hero #hero-fundraising-progress::-webkit-progress-value {
+  background: #e3bf82;
+  border-radius: 999px;
+}
+
+.hero #hero-fundraising-progress::-moz-progress-bar {
+  background: #e3bf82;
+  border-radius: 999px;
+}
