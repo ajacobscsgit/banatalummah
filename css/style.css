@@ -135,15 +135,19 @@ h4 {
 }
 
 h1 {
-  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  font-size: clamp(1.95rem, 3.75vw, 3.375rem);
 }
 
 h2 {
-  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  font-size: clamp(1.2375rem, 2.25vw, 1.8375rem);
 }
 
 h3 {
-  font-size: 1.15rem;
+  font-size: 0.8625rem;
+}
+
+h4 {
+  font-size: 0.75em;
 }
 
 p {
@@ -493,7 +497,7 @@ p {
 .hero-content h1 {
   margin-bottom: 24px;
   color: #fffdf7;
-  font-size: clamp(2.8rem, 5.5vw, 5.2rem);
+  font-size: clamp(2.1rem, 4.125vw, 3.9rem);
   line-height: 1.12;
 }
 
@@ -719,7 +723,7 @@ p {
   }
 
   .hero-content h1 {
-    font-size: clamp(2.2rem, 9vw, 3.3rem);
+    font-size: clamp(1.65rem, 6.75vw, 2.475rem);
   }
 
   .hero-content h1 span {
@@ -750,7 +754,7 @@ p {
 @media (max-width: 420px) {
 
   .hero-content h1 {
-    font-size: clamp(2rem, 9vw, 2.6rem);
+    font-size: clamp(1.5rem, 6.75vw, 1.95rem);
   }
 
 }
@@ -827,7 +831,7 @@ p {
 .mission-subheading {
   margin-top: 34px;
   margin-bottom: 16px;
-  font-size: 1.4rem;
+  font-size: 1.05rem;
 }
 
 .mission-hadith {
@@ -914,7 +918,7 @@ p {
   gap: 10px;
 
   margin-bottom: 8px;
-  font-size: 1.18rem;
+  font-size: 0.885rem;
 }
 
 .destination-body .small {
@@ -991,7 +995,7 @@ p {
 
 .sister-body h3 {
   margin-bottom: 5px;
-  font-size: 0.98rem;
+  font-size: 0.735rem;
 }
 
 .sister-body p {
@@ -1131,11 +1135,12 @@ p {
 .footer-social {
   padding-top: 24px;
   padding-bottom: 24px;
+  border-top: 1px solid var(--color-border);
 }
 
 .footer-social h2 {
   margin-bottom: 14px;
-  font-size: 1rem;
+  font-size: 0.75rem;
 }
 
 #social-links {
@@ -1145,12 +1150,40 @@ p {
 }
 
 #social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-primary-dark);
+  font-size: 0.82rem;
+  text-decoration: none;
   text-underline-offset: 4px;
+}
+
+#social-links a:hover {
+  text-decoration: underline;
+}
+
+.social-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 #social-links a:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 5px;
+}
+
+.footer-social p {
+  margin-top: 12px;
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
 
 .footer-bottom {
@@ -1399,7 +1432,7 @@ p {
   }
 
   .sister-body h3 {
-    font-size: 0.85rem;
+    font-size: 0.6375rem;
   }
 
   .sister-body p {
@@ -1456,7 +1489,7 @@ p {
 
 .about-hero h1 {
   margin-bottom: 18px;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(1.875rem, 3.75vw, 3rem);
   color: #fffdf8;
 }
 
@@ -1563,7 +1596,7 @@ p {
 
 .sister-profile-content h3 {
   margin-bottom: 5px;
-  font-size: 1.55rem;
+  font-size: 1.1625rem;
 }
 
 .profile-subtitle {
@@ -1586,7 +1619,7 @@ p {
 .profile-detail h4 {
   margin-bottom: 7px;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.6375rem;
   font-weight: 700;
   color: var(--color-primary-dark);
 }
@@ -1729,7 +1762,7 @@ p {
   }
 
   .sister-profile-content h3 {
-    font-size: 1.35rem;
+    font-size: 1.0125rem;
   }
 
   .about-reflection {
@@ -1749,7 +1782,7 @@ p {
 @media (max-width: 420px) {
 
   .about-hero h1 {
-    font-size: 2.4rem;
+    font-size: 1.8rem;
   }
 
   .sister-profile-image {
@@ -1773,17 +1806,16 @@ p {
 
 .journey-hero-inner {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 45px;
-  min-height: 330px;
-  padding-block: 60px;
+  min-height: 0;
+  padding-block: 50px;
 }
 
 .journey-hero-copy h1 {
   max-width: 650px;
   margin-bottom: 20px;
-  font-size: clamp(2.5rem, 4.5vw, 4rem);
+  font-size: clamp(1.875rem, 3.375vw, 3rem);
 }
 
 .journey-hero-copy > p:not(.eyebrow) {
@@ -1809,6 +1841,20 @@ p {
 }
 
 /* Destination Sections */
+
+.journey-destinations {
+  background: var(--color-surface);
+}
+
+.journey-destinations > .journey-section-heading {
+  max-width: 760px;
+  margin-bottom: -20px;
+  padding-top: 38px;
+}
+
+.journey-destinations > .journey-section-heading h2 {
+  margin-bottom: 0;
+}
 
 .journey-destination {
   padding-block: 65px;
@@ -1842,7 +1888,7 @@ p {
 
 .journey-destination-content h2 span {
   font-family: var(--font-body);
-  font-size: 1.4rem;
+  font-size: 1.05rem;
 }
 
 .journey-date {
@@ -1897,7 +1943,7 @@ p {
 }
 
 .journey-section-heading h3 {
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: clamp(1.125rem, 1.875vw, 1.5rem);
 }
 
 .journey-section-heading > p:last-child {
@@ -1950,7 +1996,7 @@ p {
 .study-card h4 {
   margin-bottom: 9px;
   font-family: var(--font-body);
-  font-size: 0.87rem;
+  font-size: 0.6525rem;
   font-weight: 700;
 }
 
@@ -1974,7 +2020,7 @@ p {
 ========================================== */
 
 .journey-timeline {
-  padding-block: 70px;
+  padding-block: 35px 65px;
 }
 
 .timeline-list {
@@ -2017,7 +2063,7 @@ p {
 .timeline-item h3 {
   margin-bottom: 8px;
   font-family: var(--font-body);
-  font-size: 0.86rem;
+  font-size: 0.645rem;
   font-weight: 700;
 }
 
@@ -2063,7 +2109,7 @@ p {
 .expense-panel h2,
 .fundraising-panel h2 {
   margin-bottom: 15px;
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: clamp(1.125rem, 1.875vw, 1.5rem);
 }
 
 .expense-intro,
@@ -2139,6 +2185,26 @@ p {
   font-size: clamp(2rem, 3.5vw, 3rem);
   font-weight: 400;
   line-height: 1.3;
+}
+
+.fundraising-goal .fundraising-progress-total {
+  margin: 8px 0 0;
+  color: var(--color-primary-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.fundraising-goal #journey-fundraising-progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin: 8px 0 2px;
+  accent-color: var(--color-primary);
+}
+
+#journey-fundraising-detail {
+  color: var(--color-primary-dark);
+  font-size: 0.8rem;
 }
 
 .fundraising-note {
@@ -2246,7 +2312,7 @@ p {
   }
 
   .journey-hero-copy h1 {
-    font-size: clamp(2.1rem, 8vw, 3rem);
+    font-size: clamp(1.575rem, 6vw, 2.25rem);
   }
 
   .journey-map {
@@ -2329,7 +2395,7 @@ p {
   }
 
   .study-card h4 {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
   }
 
   .study-card p {
@@ -2624,7 +2690,7 @@ html {
 .donate-intro h1 {
   max-width: 800px;
   margin-bottom: 20px;
-  font-size: clamp(2.1rem, 5vw, 3.5rem);
+  font-size: clamp(1.575rem, 3.75vw, 2.625rem);
 }
 
 .donate-intro > p:last-child {
@@ -2650,7 +2716,7 @@ html {
 }
 
 .contribution-panel h2 {
-  font-size: 1.6rem;
+  font-size: 1.2rem;
 }
 
 .contribution-panel fieldset {
@@ -2766,7 +2832,7 @@ html {
 }
 
 .donation-context h2 {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
 }
 
 .goal-display {

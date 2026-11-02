@@ -106,11 +106,9 @@ Replace `USERNAME` with the repository owner's GitHub username.
 
 Our fundraising goal is **$30,000** to help cover educational programs, transportation, accommodation, and other necessary travel expenses.
 
-Donations will be processed securely through our official LaunchGood or Givebutter fundraising campaign.
+Contributions are processed securely through Stripe Checkout on our website.
 
-**[Support Our Journey](#)**
-
-*The official fundraising link will be added before launch.*
+**[Give Sadaqah](./donate.html)**
 
 ## Contact
 
