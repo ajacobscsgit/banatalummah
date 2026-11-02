@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/donate.css">
 
+  <script src="https://js.stripe.com/dahlia/stripe.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/donate.js" defer></script>
 </head>
@@ -172,22 +173,17 @@
             role="status"
           ></p>
 
-          <!-- Enabled only after the Stripe backend is connected. -->
           <button
             class="btn btn-primary"
+            id="checkout-button"
             type="submit"
             disabled
-            aria-describedby="payment-availability"
           >
-            Online Contributions Opening Soon
+            Connecting to Checkout…
           </button>
 
           <p class="availability" id="payment-availability">
-            Online payments are not available yet.
-            For questions about supporting our journey,
-            <a href="mailto:banatalummah@gmail.com">
-              email our team
-            </a>.
+            Test mode — no real money will be collected.
           </p>
 
           <noscript>
@@ -197,6 +193,14 @@
             </p>
           </noscript>
         </form>
+
+        <div
+          id="checkout-status"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+        <div id="checkout-form"></div>
       </section>
 
       <aside

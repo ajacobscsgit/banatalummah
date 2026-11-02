@@ -1,0 +1,13 @@
+#checkout-status {
+  margin-top: 20px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+#checkout-form:not(:empty) {
+  margin-top: 24px;
+}
+
+#checkout-button[hidden] {
+  display: none;
+}
