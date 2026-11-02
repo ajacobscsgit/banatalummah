@@ -18,7 +18,7 @@
 // Replace with your official LaunchGood
 // or Givebutter fundraising campaign URL.
 
-const DONATION_URL = "https://givebutter.com/ilmihsan";
+const DONATION_URL = "donate.html";
 
 /* ==========================================
    2. MOBILE NAVIGATION
@@ -102,75 +102,20 @@ function initializeMobileNavigation() {
 
 function initializeDonationLinks() {
 
-  const donationButtons = document.querySelectorAll(
-    "[data-donate]"
-  );
+  document.querySelectorAll("[data-donate]").forEach(link => {
+    link.href = DONATION_URL;
 
-  if (!DONATION_URL.trim()) {
-
-    // Until a campaign URL is added,
-    // direct visitors to the support section.
-
-    donationButtons.forEach(button => {
-
-      button.href = "index.html#support";
-
-      button.removeAttribute("target");
-      button.removeAttribute("rel");
-
-    });
-
-    return;
-  }
-
-  // Only allow valid HTTPS donation links.
-
-  let verifiedURL;
-
-  try {
-
-    verifiedURL = new URL(DONATION_URL);
-
-    if (verifiedURL.protocol !== "https:") {
-      throw new Error("Donation URL must use HTTPS.");
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Invalid donation URL:",
-      error.message
-    );
-
-    return;
-  }
-
-  donationButtons.forEach(button => {
-
-    button.href = verifiedURL.href;
-
-    // Open external campaign in a new tab.
-
-    button.target = "_blank";
-
-    button.rel = "noopener noreferrer";
-
+    // Open our donation page in the same tab.
+    link.removeAttribute("target");
+    link.removeAttribute("rel");
   });
 
-  // Update homepage donation note.
-
-  const donationNote = document.getElementById(
-    "donation-note"
-  );
+  const donationNote = document.getElementById("donation-note");
 
   if (donationNote) {
-
     donationNote.textContent =
-      "Donations are securely processed through " +
-      "our external fundraising platform.";
-
+      "Visit our support page for contribution information and availability.";
   }
-
 }
 
 /* ==========================================

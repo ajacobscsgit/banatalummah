@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Support Our Journey | Banāt al-Ummah</title>
+
+  <meta
+    name="description"
+    content="Support four Muslim women pursuing Arabic and Qur’an studies in Egypt and a Qur’an retreat in Bosnia."
+  >
+
+  <meta name="theme-color" content="#315846">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/donate.css">
+
+  <script src="js/main.js" defer></script>
+  <script src="js/donate.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a
+        class="brand"
+        href="index.html"
+        aria-label="Banāt al-Ummah homepage"
+      >
+        <img
+          class="brand-logo"
+          src="assets/icons/logo.png"
+          alt="Banāt al-Ummah"
+        >
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-controls="site-nav"
+        aria-expanded="false"
+        aria-label="Open navigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        class="site-nav"
+        id="site-nav"
+        aria-label="Main navigation"
+      >
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+
+        <a
+          class="btn btn-primary nav-donate"
+          href="donate.html"
+          aria-current="page"
+          data-donate
+        >
+          Give Sadaqah ♡
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="container donate-intro">
+      <p class="eyebrow">Four Sisters · Summer 2027</p>
+
+      <h1>Support Our Pursuit of Knowledge</h1>
+
+      <p>
+        Help us study Arabic and the Qur’an in Cairo
+        and attend an educational retreat in Bosnia,
+        inshaAllah.
+      </p>
+    </div>
+
+    <div class="container donate-layout">
+      <section
+        class="contribution-panel"
+        aria-labelledby="contribution-title"
+      >
+        <p class="eyebrow">Give Sadaqah</p>
+
+        <h2 id="contribution-title">
+          Choose Your Contribution
+        </h2>
+
+        <p>One-time contribution in US dollars.</p>
+
+        <form id="contribution-form">
+          <fieldset>
+            <legend>Select an amount</legend>
+
+            <div class="amount-options">
+              <label class="amount-option">
+                <input type="radio" name="preset" value="25">
+                <span>$25</span>
+              </label>
+
+              <label class="amount-option">
+                <input
+                  type="radio"
+                  name="preset"
+                  value="50"
+                  checked
+                >
+                <span>$50</span>
+              </label>
+
+              <label class="amount-option">
+                <input type="radio" name="preset" value="100">
+                <span>$100</span>
+              </label>
+
+              <label class="amount-option">
+                <input type="radio" name="preset" value="250">
+                <span>$250</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label class="custom-label" for="custom-amount">
+            Or enter another amount
+          </label>
+
+          <div class="custom-input">
+            <span aria-hidden="true">$</span>
+
+            <input
+              id="custom-amount"
+              name="amount"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              placeholder="Other amount"
+              aria-describedby="amount-help amount-error"
+            >
+
+            <span>USD</span>
+          </div>
+
+          <p class="amount-help" id="amount-help">
+            Choose between $1 and $10,000.
+          </p>
+
+          <p
+            class="amount-error"
+            id="amount-error"
+            aria-live="polite"
+          ></p>
+
+          <p
+            class="amount-summary"
+            id="amount-summary"
+            role="status"
+          ></p>
+
+          <!-- Enabled only after the Stripe backend is connected. -->
+          <button
+            class="btn btn-primary"
+            type="submit"
+            disabled
+            aria-describedby="payment-availability"
+          >
+            Online Contributions Opening Soon
+          </button>
+
+          <p class="availability" id="payment-availability">
+            Online payments are not available yet.
+            For questions about supporting our journey,
+            <a href="mailto:banatalummah@gmail.com">
+              email our team
+            </a>.
+          </p>
+
+          <noscript>
+            <p>
+              Enable JavaScript to preview your selected amount.
+              Online payments are not available yet.
+            </p>
+          </noscript>
+        </form>
+      </section>
+
+      <aside
+        class="donation-context"
+        aria-labelledby="support-details"
+      >
+        <div class="goal-display">
+          <span>Our Fundraising Goal</span>
+          <strong>$30,000</strong>
+
+          <span>
+            Supporting four students on our planned
+            summer 2027 journey.
+          </span>
+        </div>
+
+        <h2 id="support-details">Where Your Support Goes</h2>
+
+        <ul class="support-uses">
+          <li>Arabic and Qur’an studies in Cairo, Egypt.</li>
+          <li>Flights and transportation between destinations.</li>
+          <li>Accommodation and basic living expenses.</li>
+          <li>Participation in the planned Qur’an retreat in Bosnia.</li>
+        </ul>
+
+        <p>
+          <a href="journey.html">
+            Explore Our Planned Journey →
+          </a>
+        </p>
+
+        <details>
+          <summary>Who is organizing this fundraiser?</summary>
+
+          <p>
+            Banāt al-Ummah is a group of four Muslim women
+            raising funds for our educational journey.
+            We are not a registered nonprofit.
+            <a href="about.html">Meet the sisters.</a>
+          </p>
+        </details>
+
+        <details>
+          <summary>Are contributions tax deductible?</summary>
+
+          <p>
+            We do not offer tax-deductible charitable receipts.
+            No goods or services are provided in exchange
+            for a contribution.
+          </p>
+        </details>
+
+        <details>
+          <summary>How can I contact the team?</summary>
+
+          <p>
+            Email
+            <a href="mailto:banatalummah@gmail.com">
+              banatalummah@gmail.com
+            </a>
+            with questions about the campaign.
+          </p>
+        </details>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <div>
+        <a class="brand" href="index.html">
+          <img
+            class="brand-logo"
+            src="assets/icons/logo.png"
+            alt="Banāt al-Ummah"
+          >
+        </a>
+
+        <p>
+          Four sisters. One pursuit.<br>
+          A journey toward beneficial knowledge.
+        </p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+        <a href="mailto:banatalummah@gmail.com">Email Us</a>
+      </nav>
+    </div>
+
+    <div class="container footer-bottom">
+      <span>
+        © <span id="year">2026</span>
+        Banāt al-Ummah. All rights reserved.
+      </span>
+
+      <span>Made with intention and hope.</span>
+    </div>
+  </footer>
+</body>
+</html>
