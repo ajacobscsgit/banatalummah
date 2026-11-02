@@ -27,6 +27,11 @@
   let stripe = null;
   let busy = false;
   let amountInCents = null;
+  let paymentMode = "test";
+
+  const availability = document.getElementById(
+    "payment-availability"
+  );
 
   async function requestJSON(path, options = {}) {
     const response = await fetch(`${API_URL}${path}`, options);
@@ -114,7 +119,7 @@
     updateAmount();
 
     checkoutButton.textContent = "Opening Checkout…";
-    checkoutStatus.textContent = "Loading the secure test payment form…";
+    checkoutStatus.textContent = "Loading the secure payment form…";
 
     try {
       const session = await requestJSON(
@@ -165,7 +170,7 @@
       }
 
       paymentForm.on("confirm", async confirmEvent => {
-        checkoutStatus.textContent = "Processing your test payment…";
+        checkoutStatus.textContent = "Processing your contribution…";
 
         try {
           const result = await actionsResult.actions.confirm({
@@ -178,13 +183,14 @@
               "The payment could not be completed. Check the form and try again.";
           } else {
             checkoutStatus.textContent =
-              "Follow the payment form’s confirmation instructions. " +
-              "You can verify the test payment in your Stripe sandbox.";
+              "Your payment details have been submitted. " +
+              "Please wait for payment confirmation before trying again.";
           }
         } catch {
           checkoutStatus.textContent =
-            "Payment confirmation was interrupted. Check Stripe’s test " +
-            "payment status before trying again.";
+            "Payment confirmation was interrupted. Please contact " +
+            "banatalummah@gmail.com to check your payment status " +
+            "before submitting another contribution.";
         }
       });
 
@@ -199,8 +205,9 @@
       checkoutButton.hidden = true;
 
       checkoutStatus.textContent =
-        `Test checkout for ${money.format(amountInCents / 100)} USD. ` +
-        "No real money will be collected.";
+        paymentMode === "test"
+          ? `Test checkout for ${money.format(amountInCents / 100)} USD. No real money will be collected.`
+          : `Your contribution: ${money.format(amountInCents / 100)} USD. Complete the secure Stripe form below.`;
     } catch (error) {
       checkoutStatus.textContent =
         `${error.message} Check the server terminal for details, ` +
@@ -220,8 +227,24 @@
 
     const config = await requestJSON("/api/config");
 
-    if (!config.publishableKey?.startsWith("pk_test_")) {
-      throw new Error("A Stripe test publishable key is required.");
+    if (!["test", "live"].includes(config.mode)) {
+      throw new Error("The server returned an invalid payment mode.");
+    }
+
+    paymentMode = config.mode;
+
+    const expectedPrefix =
+      paymentMode === "live" ? "pk_live_" : "pk_test_";
+
+    if (!config.publishableKey?.startsWith(expectedPrefix)) {
+      throw new Error("Stripe key and payment mode do not match.");
+    }
+
+    if (availability) {
+      availability.textContent =
+        paymentMode === "test"
+          ? "Test mode — no real money will be collected."
+          : "Payments are securely processed by Stripe.";
     }
 
     stripe = window.Stripe(config.publishableKey);

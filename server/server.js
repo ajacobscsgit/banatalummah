@@ -9,18 +9,32 @@ const Stripe = require("stripe");
 const app = express();
 
 const PORT = Number(process.env.PORT || 4242);
+
 const SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 const PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "";
 
+const PAYMENT_MODE = process.env.PAYMENT_MODE || "test";
+
+if (!["test", "live"].includes(PAYMENT_MODE)) {
+  console.error("PAYMENT_MODE must be test or live.");
+  process.exit(1);
+}
+
+const expectedSecretPrefix =
+  PAYMENT_MODE === "live" ? "sk_live_" : "sk_test_";
+
+const expectedPublicPrefix =
+  PAYMENT_MODE === "live" ? "pk_live_" : "pk_test_";
+
 if (
-  !SECRET_KEY.startsWith("sk_test_") ||
-  !PUBLISHABLE_KEY.startsWith("pk_test_") ||
+  !SECRET_KEY.startsWith(expectedSecretPrefix) ||
+  !PUBLISHABLE_KEY.startsWith(expectedPublicPrefix) ||
   SECRET_KEY.includes("REPLACE_ME") ||
   PUBLISHABLE_KEY.includes("REPLACE_ME")
 ) {
   console.error(
-    "Add your real Stripe TEST keys to server/.env before starting."
+    `Add matching ${PAYMENT_MODE} Stripe keys to your environment variables.`
   );
 
   process.exit(1);
@@ -69,7 +83,7 @@ app.use((req, res, next) => {
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
-    mode: "test"
+    mode: PAYMENT_MODE
   });
 });
 
@@ -79,7 +93,8 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/config", (req, res) => {
   res.json({
-    publishableKey: PUBLISHABLE_KEY
+    publishableKey: PUBLISHABLE_KEY,
+    mode: PAYMENT_MODE
   });
 });
 
@@ -176,7 +191,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
     console.error("Checkout creation failed:", message);
 
     res.status(500).json({
-      error: message
+      error: "Unable to open checkout. Please try again shortly."
     });
   }
 });
