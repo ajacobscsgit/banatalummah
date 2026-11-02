@@ -1,7 +1,7 @@
 "use strict";
 
 (async () => {
-  const API_URL = "https://banatalummah.onrender.com/";
+  const API_URL = "https://banatalummah.onrender.com";
 
   const contributionForm = document.getElementById(
     "contribution-form"
@@ -29,10 +29,7 @@
   let amountInCents = null;
 
   async function requestJSON(path, options = {}) {
-    const response = await fetch(
-      `${API_URL}${path.replace(/^\/+/, "")}`,
-      options
-    );
+    const response = await fetch(`${API_URL}${path}`, options);
 
     let data;
 
