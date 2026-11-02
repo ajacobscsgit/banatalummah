@@ -181,8 +181,6 @@ app.post("/api/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-  console.log(
-    `Stripe TEST server running at http://127.0.0.1:${PORT}`
-  );
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${PORT}`);
 });
