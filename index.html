@@ -84,215 +84,79 @@
 
   <main id="main">
 
-    <!-- ========================================
-         HERO SECTION
-    ========================================= -->
+    <section class="home-landing" aria-labelledby="home-title">
+      <video
+        class="home-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster="assets/images/hero-cairo.jpg"
+        aria-hidden="true">
+        <source src="assets/videos/hero-background.mp4" type="video/mp4">
+      </video>
 
-    <section class="hero" aria-labelledby="hero-title">
+      <div class="home-overlay" aria-hidden="true"></div>
 
-      <!-- HERO BACKGROUND VIDEO -->
-      <div class="hero-video-wrapper" aria-hidden="true">
+      <div class="container home-landing-inner">
 
-        <video
-          class="hero-video"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="auto"
-          poster="assets/images/hero-cairo.jpg">
+        <p class="home-kicker">BANAT AL-UMMAH | SEEKING KNOWLEDGE. GIVING BACK.</p>
 
-          <source
-            src="assets/videos/hero-background.mp4"
-            type="video/mp4">
+        <h1 id="home-title" class="home-title">
+          Supporting the Pursuit of Islamic Knowledge
+        </h1>
 
-        </video>
+        <p class="home-intro">
+          Banat Al-Ummah is dedicated to sponsoring groups of Muslim women seeking beneficial Islamic
+          knowledge, fostering opportunities for education, spiritual growth, and meaningful contributions to
+          their communities.
+        </p>
 
-      </div>
+        <div class="section-divider" aria-hidden="true"></div>
 
-      <div class="container hero-inner">
+        <div class="initiative-section">
+          <p class="initiative-label">OUR CURRENT INITIATIVE · SUMMER 2027</p>
 
-        <div class="hero-content">
+          <h2 class="initiative-title">Help Sponsor a Journey of Knowledge</h2>
 
-          <p class="hero-eyebrow">
-            GIVE SADAQAH TO FOUR MUSLIM WOMEN SEEK BENEFICIAL KNOWLEDGE
+          <p class="initiative-copy">
+            Support our inaugural group as they embark on an educational journey abroad to deepen their
+            understanding of Arabic, Qur'an, and Islamic studies, inshaAllah.
           </p>
 
-          <h1 id="hero-title">
-            Help Us Study Islam Abroad
-            <span>in Summer 2027</span>
-          </h1>
-
-          <p class="hero-description">
-            Four Muslim women pursuing Arabic, Qur’an, and beneficial knowledge. Support our summer 2027 educational journey.
-          </p>
-
-          <div class="hero-fundraising">
-            <strong>$30,000</strong>
-            <span>Our Fundraising Goal</span>
-            <p id="hero-fundraising-total" role="status" aria-live="polite">
-              Loading confirmed contributions…
-            </p>
-            <progress
-              id="hero-fundraising-progress"
-              max="3000000"
-              value="0"
-              aria-label="Confirmed contributions toward our $30,000 goal"
-            ></progress>
-            <span id="hero-fundraising-detail"></span>
+          <div class="initiative-amount">
+            $30,000
+            <span>Fundraising Goal</span>
           </div>
 
-          <div class="hero-actions">
-
-            <a href="donate.html"
-               class="btn-hero-donate"
-               data-donate>
-              <span aria-hidden="true">♡</span>
-              Give Sadaqah to Support Our Journey
-              <span aria-hidden="true">↗</span>
-            </a>
-
-            <a href="about.html"
-               class="hero-secondary-link">
-              Meet the Sisters →
-            </a>
-
+          <div
+            class="home-progress"
+            role="progressbar"
+            aria-label="Fundraising progress toward the $30,000 goal"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0">
+            <div class="home-progress-bar" id="home-progress-bar" aria-hidden="true"></div>
           </div>
-
-          <p class="hero-support-note">
-            Every contribution and share helps us
-            work toward our goal.
+          <p class="home-progress-percent" id="home-progress-percent" aria-live="polite">
+            Loading progress…
           </p>
 
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ========================================
-         OUR MISSION
-    ========================================= -->
-
-    <section class="section mission"
-      id="mission"
-      aria-labelledby="mission-title">
-
-      <div class="container mission-grid">
-
-        <div class="mission-image" aria-hidden="true">
-          <img
-            src="assets/images/hero-home.jpg"
-            alt="">
-        </div>
-
-        <div class="mission-copy">
-
-          <p class="eyebrow">Our Mission</p>
-
-          <h2 id="mission-title">
-            Seeking Knowledge. Giving Back. Building a Lasting Legacy.
-          </h2>
-
-          <p>
-            Banāt al-Ummah began with four Muslim women united
-            by sisterhood and a shared desire to seek beneficial
-            knowledge. But our vision extends far beyond our
-            own educational journey.
-          </p>
-
-          <p>
-            In the summer of 2027, inshaAllah, we hope to travel
-            to Cairo, Egypt, to study Arabic, the Qur'an, and
-            Islamic sciences, followed by a Qur'an-centered
-            Muslimah retreat in Bosnia. During our studies, we
-            aim to strengthen our Arabic proficiency, deepen our
-            understanding of Islam, pursue recognized
-            certificates and ijazāt where available and
-            attainable, and establish meaningful connections
-            with teachers and educational institutions abroad.
-          </p>
-
-          <p class="mission-highlight">
-            <strong>Our goal is not simply to seek knowledge for
-            ourselves, but to create opportunities for others
-            to seek it as well.</strong>
-          </p>
-
-          <p>
-            Upon returning home, we hope to share what we've
-            learned through Arabic lessons, Qur'an classes,
-            study circles, and community educational programs,
-            teaching within the areas in which we have gained
-            sufficient knowledge and qualification.
-          </p>
-
-          <p>
-            Our long-term vision is to establish a sponsorship
-            initiative that helps Muslim sisters and brothers
-            pursue Islamic education overseas at little to no
-            personal cost. By building relationships with
-            trusted institutions, teachers, and communities
-            abroad, we hope to make opportunities for beneficial
-            knowledge more accessible to those who may otherwise
-            be unable to afford them.
-          </p>
-
-          <h3 class="mission-subheading">
-            An Opportunity for Sadaqah Jariyah
-          </h3>
-
-          <p>
-            We are raising <strong>$30,000</strong> to help fund
-            the first stage of this vision: our own educational
-            journey.
-          </p>
-
-          <p>
-            We hope that your sadaqah will not only support four
-            students today, but become part of something that
-            continues to benefit others, inshaAllah. Every
-            lesson shared, every student supported, and every
-            opportunity created has the potential to extend the
-            benefit of this initial generosity.
-          </p>
-
-          <p>
-            Our intention is to build something lasting, seeking
-            the reward of sadaqah jariyah through beneficial
-            knowledge that continues to be taught, practiced,
-            and passed on.
-          </p>
-
-          <blockquote class="mission-hadith">
-            <p>
-              The Messenger of Allah ﷺ said:
-            </p>
-            <p>
-              “When a person dies, his deeds come to an end
-              except for three: ongoing charity, beneficial
-              knowledge, or a righteous child who prays for him.”
-            </p>
-            <cite>Sahih Muslim 1631</cite>
-          </blockquote>
-
-          <p>
-            With Allah's permission, we hope this journey becomes
-            the foundation of a lasting effort to spread
-            beneficial knowledge, strengthen our communities,
-            and open doors for future generations of students.
-          </p>
-
-          <p class="mission-final-call">
-            <strong>Help us take the first step toward making
-            Islamic education accessible to more Muslims.</strong>
-          </p>
-
-          <a class="btn btn-primary"
-            data-donate href="donate.html">
-            ♡ &nbsp;Support Our Journey
+          <a href="donate.html" class="btn-initiative" data-donate>
+            <span aria-hidden="true">♡</span>
+            Give Sadaqah to Support Our Journey
+            <span aria-hidden="true">↗</span>
           </a>
 
+          <p class="initiative-note">
+            Every contribution helps make opportunities for beneficial knowledge possible.
+          </p>
         </div>
+
+        <div class="section-divider" aria-hidden="true"></div>
+
+
       </div>
     </section>
 

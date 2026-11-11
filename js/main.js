@@ -20,12 +20,15 @@
 const DONATION_URL = "donate.html";
 const PROGRESS_API_URL = "https://banatalummah.onrender.com/api/progress";
 
-function initializeFundraisingProgress(totalId, barId, detailId) {
-  const total = document.getElementById(totalId);
+function initializeFundraisingProgress(totalId, barId, detailId, percentId) {
+  const total = totalId ? document.getElementById(totalId) : null;
   const bar = document.getElementById(barId);
-  const detail = document.getElementById(detailId);
+  const detail = detailId ? document.getElementById(detailId) : null;
+  const percentLabel = percentId
+    ? document.getElementById(percentId)
+    : null;
 
-  if (!total || !bar || !detail) return;
+  if (!bar) return;
 
   const money = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -55,24 +58,55 @@ function initializeFundraisingProgress(totalId, barId, detailId) {
       const percent =
         progress.raisedInCents / progress.goalInCents * 100;
 
-      total.textContent =
-        `${money.format(progress.raisedInCents / 100)} raised of ` +
-        `${money.format(progress.goalInCents / 100)}`;
-      bar.max = progress.goalInCents;
-      bar.value = Math.min(progress.raisedInCents, progress.goalInCents);
-      bar.setAttribute(
-        "aria-valuetext",
-        `${money.format(progress.raisedInCents / 100)} raised, ` +
-        `${percent.toFixed(1)} percent of goal`
-      );
-      detail.textContent =
-        `${percent.toFixed(1)}% funded · ` +
-        `${progress.contributionCount} confirmed ` +
-        `${progress.contributionCount === 1 ? "contribution" : "contributions"}`;
+      if (total) {
+        total.textContent =
+          `${money.format(progress.raisedInCents / 100)} raised of ` +
+          `${money.format(progress.goalInCents / 100)}`;
+      }
+
+      if (bar instanceof HTMLProgressElement) {
+        bar.max = progress.goalInCents;
+        bar.value = Math.min(progress.raisedInCents, progress.goalInCents);
+        bar.setAttribute(
+          "aria-valuetext",
+          `${money.format(progress.raisedInCents / 100)} raised, ` +
+          `${percent.toFixed(1)} percent of goal`
+        );
+      } else {
+        bar.style.width = `${Math.min(percent, 100)}%`;
+        if (bar.parentElement) {
+          bar.parentElement.setAttribute(
+            "aria-valuenow",
+            String(Math.min(percent, 100))
+          );
+          bar.parentElement.setAttribute(
+            "aria-valuetext",
+            `${percent.toFixed(1)} percent of goal`
+          );
+        }
+      }
+
+      if (detail) {
+        detail.textContent =
+          `${percent.toFixed(1)}% funded · ` +
+          `${progress.contributionCount} confirmed ` +
+          `${progress.contributionCount === 1 ? "contribution" : "contributions"}`;
+      }
+
+      if (percentLabel) {
+        percentLabel.textContent = `${percent.toFixed(1)}%`;
+      }
     })
     .catch(() => {
-      total.textContent = "Confirmed total temporarily unavailable.";
-      detail.textContent = "Visit our support page to check again.";
+      if (total) {
+        total.textContent = "Confirmed total temporarily unavailable.";
+      }
+      if (detail) {
+        detail.textContent = "Visit our support page to check again.";
+      }
+      if (percentLabel) {
+        percentLabel.textContent = "Progress temporarily unavailable.";
+      }
     });
 }
 
@@ -311,6 +345,12 @@ function initializeWebsite() {
     "hero-fundraising-total",
     "hero-fundraising-progress",
     "hero-fundraising-detail"
+  );
+  initializeFundraisingProgress(
+    null,
+    "home-progress-bar",
+    null,
+    "home-progress-percent"
   );
   initializeFundraisingProgress(
     "journey-fundraising-total",
