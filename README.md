@@ -35,7 +35,7 @@ We plan to study Arabic, Qur'an, and foundational Islamic sciences, including aq
 ### Bosnia and Herzegovina 🇧🇦
 
 **Program:** Muslimah Qur'an Retreat  
-**Organizer:** Markaz Salih Ibn Suleiman
+**Organizer:** Bosnia Institution
 
 Following our studies in Cairo, we hope to attend a Qur'an-centered retreat focused on learning, reflection, and sisterhood.
 
