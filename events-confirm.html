@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#315846">
+  <meta name="description" content="Confirm Banāt al-Ummah event email updates.">
+  <title>Confirm Event Updates | Banāt al-Ummah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/events.css">
+  <script src="js/main.js" defer></script>
+  <script src="js/events.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Banāt al-Ummah homepage">
+        <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+      </a>
+      <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a><a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a><a href="events.html" class="active" aria-current="page">Events</a>
+        <a class="btn btn-primary nav-donate" data-donate href="donate.html">Give Sadaqah <span aria-hidden="true">♡</span></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="section event-registration-section">
+      <div class="container event-registration-content">
+        <div class="event-state-card">
+          <p class="eyebrow">Email Preferences</p>
+          <h1>Confirm Event Updates</h1>
+          <p id="interest-confirm-message" role="status" aria-live="polite">
+            Confirm that you would like to receive email updates about this event.
+          </p>
+          <form id="interest-confirm-form" hidden>
+            <button class="btn btn-primary" type="submit">Confirm my email</button>
+          </form>
+          <a class="btn btn-muted" href="events.html">Return to Events</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-bottom"><span>© <span id="year">2026</span> Banāt al-Ummah. All rights reserved.</span></div>
+  </footer>
+</body>
+</html>

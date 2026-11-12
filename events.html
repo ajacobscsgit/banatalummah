@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#315846">
+  <meta
+    name="description"
+    content="Explore Banāt al-Ummah learning events and upcoming opportunities for Muslim women."
+  >
+  <title>Events &amp; Classes | Banāt al-Ummah</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/events.css">
+  <script src="js/main.js" defer></script>
+  <script src="js/events-data.js" defer></script>
+  <script src="js/events.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Banāt al-Ummah homepage">
+        <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+      </a>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-controls="site-nav"
+        aria-expanded="false"
+        aria-label="Open navigation"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+        <a href="events.html" class="active" aria-current="page">Events</a>
+        <a class="btn btn-primary nav-donate" data-donate href="donate.html">
+          Give Sadaqah <span aria-hidden="true">♡</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="events-hero">
+      <div class="container events-hero-content">
+        <p class="eyebrow">Learn Together. Grow Together.</p>
+        <h1>Events &amp; Classes</h1>
+        <p>
+          Gather for beneficial learning, meaningful connection, and service to
+          our communities.
+        </p>
+      </div>
+    </section>
+
+    <section class="section events-section" aria-labelledby="upcoming-title">
+      <div class="container">
+        <div class="events-section-heading">
+          <div>
+            <p class="eyebrow">Come Learn With Us</p>
+            <h2 id="upcoming-title">Upcoming Opportunities</h2>
+          </div>
+          <a class="text-link" href="#event-interest">Get event updates <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="events-toolbar">
+          <div class="event-filters" role="group" aria-label="Filter events">
+            <button type="button" class="event-filter is-active" data-filter="all" aria-pressed="true">All events</button>
+            <button type="button" class="event-filter" data-filter="Arabic" aria-pressed="false">Arabic</button>
+            <button type="button" class="event-filter" data-filter="Coming soon" aria-pressed="false">Coming soon</button>
+          </div>
+          <div class="events-carousel-controls" role="group" aria-label="Event carousel controls">
+            <button type="button" class="carousel-button" data-carousel-step="-1" aria-label="Show previous events">
+              <span aria-hidden="true">←</span>
+            </button>
+            <button type="button" class="carousel-button" data-carousel-step="1" aria-label="Show next events">
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="events-list" id="events-list" aria-live="polite"></div>
+        <p class="events-empty" id="events-empty" hidden>No events match this filter.</p>
+      </div>
+    </section>
+
+    <section class="section event-interest-section" id="event-interest" aria-labelledby="interest-title">
+      <div class="container event-interest-content">
+        <p class="eyebrow">Stay Connected</p>
+        <h2 id="interest-title">Hear About Future Events</h2>
+        <p>
+          Leave your email to receive updates about the event opportunities
+          you select. We will not ask for payment while registration is closed.
+        </p>
+        <form class="event-interest-form" data-event-interest-form>
+          <label for="interest-event">Event</label>
+          <select id="interest-event" name="eventId" required></select>
+          <label for="interest-email">Email address</label>
+          <input id="interest-email" name="email" type="email" autocomplete="email" required maxlength="254">
+          <label class="event-consent">
+            <input name="consent" type="checkbox" required>
+            <span>I agree to receive email updates about the selected event. I can unsubscribe at any time.</span>
+          </label>
+          <label class="event-honeypot" aria-hidden="true">
+            Leave this field empty
+            <input name="website" type="text" tabindex="-1" autocomplete="off">
+          </label>
+          <button class="btn btn-primary" type="submit">Join the Interest List</button>
+          <p class="event-form-status" role="status" aria-live="polite"></p>
+        </form>
+        <p class="fine-print">
+          Your email is used only for the event updates you request.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <div>
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+        </a>
+        <p>Seeking beneficial knowledge.<br>Growing in community.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+        <a href="events.html" aria-current="page">Events</a>
+        <a data-donate href="donate.html">Support Us</a>
+        <a href="mailto:banatalummah@gmail.com">Email Us</a>
+      </nav>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year">2026</span> Banāt al-Ummah. All rights reserved.</span>
+    </div>
+  </footer>
+</body>
+</html>

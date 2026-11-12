@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#315846">
+  <meta name="description" content="Check your Banāt al-Ummah event registration status.">
+  <title>Registration Status | Banāt al-Ummah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/events.css">
+  <script src="js/main.js" defer></script>
+  <script src="js/events-data.js" defer></script>
+  <script src="js/events.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Banāt al-Ummah homepage">
+        <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+      </a>
+      <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a><a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a><a href="events.html" class="active" aria-current="page">Events</a>
+        <a class="btn btn-primary nav-donate" data-donate href="donate.html">Give Sadaqah <span aria-hidden="true">♡</span></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="section event-registration-section">
+      <div class="container event-registration-content" id="registration-success" aria-live="polite"></div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <div>
+        <a class="brand" href="index.html"><img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah"></a>
+        <p>Seeking beneficial knowledge.<br>Growing in community.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a><a href="events.html" aria-current="page">Events</a>
+        <a data-donate href="donate.html">Support Us</a><a href="mailto:banatalummah@gmail.com">Email Us</a>
+      </nav>
+    </div>
+    <div class="container footer-bottom"><span>© <span id="year">2026</span> Banāt al-Ummah. All rights reserved.</span></div>
+  </footer>
+</body>
+</html>

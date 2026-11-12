@@ -42,13 +42,14 @@ Following the cohort's studies in Cairo, participants hope to attend a Qur'an-ce
 
 ## Website Structure
 
-The website consists of three primary pages:
+The website's primary pages are:
 
 | Page | Description |
 |---|---|
 | Home | Introduction, mission, journey overview, and fundraising |
 | About Us | Our story and individual sister biographies |
 | Our Journey | Study plans, destinations, itinerary, and fundraising details |
+| Events | Learning events, event details, and registration information |
 
 ### Project Files
 
@@ -58,19 +59,35 @@ banat-al-ummah/
 ├── index.html
 ├── about.html
 ├── journey.html
+├── events.html
+├── event.html
+├── register.html
+├── registration-success.html
+├── events-confirm.html
+├── events-unsubscribe.html
 │
 ├── css/
-│   └── style.css
+│   ├── style.css
+│   └── events.css
 │
 ├── js/
-│   └── main.js
+│   ├── main.js
+│   ├── events-data.js
+│   └── events.js
 │
 ├── assets/
 │   ├── images/
 │   │   └── sisters/
 │   └── icons/
 │
-└── README.md
+├── README.md
+│
+└── server/
+    ├── server.js
+    ├── events-utils.js
+    ├── .env.example
+    └── migrations/
+        └── 001_event_registration.sql
 ```
 
 ## Technologies Used
@@ -108,6 +125,77 @@ Our current initiative has a fundraising goal of **$30,000** to help cover the i
 Contributions are processed securely through Stripe Checkout on our website.
 
 **[Give Sadaqah](./donate.html)**
+
+## Events and Registration
+
+The Events pages are static files hosted with the website. Public event details
+are maintained in `js/events-data.js` and shared with the Express service so
+event prices and schedules are validated on the server.
+
+The proposed weekly Arabic class is shown as **registration opening soon**.
+Paid registration is intentionally disabled until the class schedule, public
+location, eligibility, cancellation/refund policy, deadline, and per-session
+capacity are confirmed. The current public description is the Greater Cleveland
+Area, Ohio; do not put a private venue address in the public event data or
+confirmation emails.
+
+### Private event services
+
+The Express service can use Render PostgreSQL for private interest and
+registration records and Resend for double-opt-in interest emails and paid
+registration confirmations. Donation processing remains separate. The website
+does not store card details; Stripe Checkout handles payment.
+
+Configure these only in the backend service environment, never in the website:
+
+- `DATABASE_URL`: Render PostgreSQL connection string.
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`: Resend API key and a verified sender.
+- `EVENT_ADMIN_TOKEN`: a unique random token with at least 32 characters.
+- `EVENT_REGISTRATION_ENABLED=false`: keep paid registration closed.
+- Existing Stripe variables: matching test/live keys and webhook signing secret.
+
+Copy `server/.env.example` as a local reference; do not commit a real `.env`.
+The server creates the event tables at startup when `DATABASE_URL` is set. If
+the database is unavailable, the event APIs report unavailable while the
+existing donation routes remain available.
+
+Point the Stripe webhook at
+`https://banatalummah.onrender.com/api/stripe-webhook`. Include the existing
+donation event types and these Checkout/refund/dispute events:
+`checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+`checkout.session.async_payment_failed`, `checkout.session.expired`,
+`charge.refunded`, `charge.dispute.created`, and `charge.dispute.closed`.
+
+### Organizer access and launch checklist
+
+Organizer requests use the `Authorization: Bearer <EVENT_ADMIN_TOKEN>` header:
+
+- `GET /api/admin/event-registrations` lists registrations; optional filters:
+  `event_id`, `status`, and `limit` (up to 500).
+- `GET /api/admin/event-interests` lists only confirmed, subscribed interest
+  requests; optional filters: `event_id` and `limit`.
+- `POST /api/admin/event-sessions` configures up to 50 class dates using
+  `{"eventId":"weekly-arabic-classes","sessions":[{"sessionDate":"YYYY-MM-DD"}]}`.
+  The server uses the configured per-session capacity, locks concurrent
+  reservations, and rejects capacity changes below seats already booked.
+
+Before opening registration:
+
+1. Confirm the date/schedule, eligibility, registration deadline,
+   cancellation/refund policy, public location wording, and per-session
+   capacity with the organizers.
+2. Update the Arabic class entry in `js/events-data.js` with those confirmed
+   details, `capacityPerSession`, and `registrationPolicy`; set
+   `registrationEnabled` to `true`.
+3. Configure the matching session dates through the authenticated organizer
+   endpoint and set `EVENT_REGISTRATION_ENABLED=true` in the backend.
+4. Test the complete flow with Stripe test keys and verify confirmation email,
+   webhook delivery, capacity handling, registration status, and organizer
+   access before changing to live payment keys.
+
+The public event price is informational only. Checkout amount is calculated
+from the server-owned event configuration. Do not set registration open until
+all launch requirements and provider configuration are verified.
 
 ## Contact
 
