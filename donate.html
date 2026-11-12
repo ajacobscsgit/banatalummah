@@ -277,10 +277,6 @@
           <span>Our Fundraising Goal</span>
           <strong>$30,000</strong>
 
-          <p id="fundraising-total" role="status" aria-live="polite">
-            Loading confirmed contributions…
-          </p>
-
           <progress
             id="fundraising-progress"
             max="3000000"
@@ -288,7 +284,19 @@
             aria-label="Confirmed contributions toward our $30,000 goal"
           ></progress>
 
-          <p id="fundraising-detail"></p>
+          <p
+            class="fundraising-progress-summary"
+            id="fundraising-total"
+            role="status"
+            aria-live="polite"
+          >
+            Loading confirmed contributions…
+          </p>
+
+          <p
+            class="fundraising-progress-detail"
+            id="fundraising-detail"
+          ></p>
 
           <small>
             Confirmed contributions before processing fees, minus refunds.

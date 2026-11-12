@@ -102,23 +102,24 @@
 
       const percent =
         progress.raisedInCents / progress.goalInCents * 100;
+      const raised = money.format(progress.raisedInCents / 100);
+      const remaining = money.format(
+        Math.max(progress.goalInCents - progress.raisedInCents, 0) / 100
+      );
+      const summary =
+        `${percent.toFixed(1)}% funded · ${raised} raised · ` +
+        `${remaining} to go`;
 
-      fundraisingTotal.textContent =
-        `${money.format(progress.raisedInCents / 100)} raised of ` +
-        `${money.format(progress.goalInCents / 100)}`;
+      fundraisingTotal.textContent = summary;
       fundraisingProgress.max = progress.goalInCents;
       fundraisingProgress.value = Math.min(
         progress.raisedInCents,
         progress.goalInCents
       );
-      fundraisingProgress.setAttribute(
-        "aria-valuetext",
-        `${money.format(progress.raisedInCents / 100)} raised, ` +
-        `${percent.toFixed(1)} percent of goal`
-      );
+      fundraisingProgress.setAttribute("aria-valuetext", summary);
       fundraisingDetail.textContent =
-        `${percent.toFixed(1)}% of our goal · ` +
-        `${progress.contributionCount} contributions`;
+        `${progress.contributionCount} confirmed ` +
+        `${progress.contributionCount === 1 ? "contribution" : "contributions"}`;
     } catch {
       fundraisingTotal.textContent =
         "Confirmed total temporarily unavailable. Please check again shortly.";

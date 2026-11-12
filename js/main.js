@@ -57,21 +57,22 @@ function initializeFundraisingProgress(totalId, barId, detailId, percentId) {
 
       const percent =
         progress.raisedInCents / progress.goalInCents * 100;
+      const raised = money.format(progress.raisedInCents / 100);
+      const remaining = money.format(
+        Math.max(progress.goalInCents - progress.raisedInCents, 0) / 100
+      );
+      const summary =
+        `${percent.toFixed(1)}% funded · ${raised} raised · ` +
+        `${remaining} to go`;
 
       if (total) {
-        total.textContent =
-          `${money.format(progress.raisedInCents / 100)} raised of ` +
-          `${money.format(progress.goalInCents / 100)}`;
+        total.textContent = summary;
       }
 
       if (bar instanceof HTMLProgressElement) {
         bar.max = progress.goalInCents;
         bar.value = Math.min(progress.raisedInCents, progress.goalInCents);
-        bar.setAttribute(
-          "aria-valuetext",
-          `${money.format(progress.raisedInCents / 100)} raised, ` +
-          `${percent.toFixed(1)} percent of goal`
-        );
+        bar.setAttribute("aria-valuetext", summary);
       } else {
         bar.style.width = `${Math.min(percent, 100)}%`;
         if (bar.parentElement) {
@@ -81,20 +82,19 @@ function initializeFundraisingProgress(totalId, barId, detailId, percentId) {
           );
           bar.parentElement.setAttribute(
             "aria-valuetext",
-            `${percent.toFixed(1)} percent of goal`
+            summary
           );
         }
       }
 
       if (detail) {
         detail.textContent =
-          `${percent.toFixed(1)}% funded · ` +
           `${progress.contributionCount} confirmed ` +
           `${progress.contributionCount === 1 ? "contribution" : "contributions"}`;
       }
 
       if (percentLabel) {
-        percentLabel.textContent = `${percent.toFixed(1)}%`;
+        percentLabel.textContent = summary;
       }
     })
     .catch(() => {
