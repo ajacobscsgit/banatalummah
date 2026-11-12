@@ -1,26 +1,25 @@
 # Banāt al-Ummah | بنات الأمة
 
-**Four Sisters. One Pursuit. A Journey Toward Beneficial Knowledge.**
+**Supporting Muslim Women. Sharing Beneficial Knowledge.**
 
-Banāt al-Ummah is a sisterhood of four Muslim women united by a shared commitment to seeking beneficial Islamic knowledge, strengthening our connection to the Qur'an, and growing together in faith.
+Banāt al-Ummah is an initiative dedicated to supporting groups of Muslim women seeking beneficial Islamic knowledge, strengthening their connection to the Qur'an, and sharing what they learn with their communities.
 
-Our first educational journey is planned for **Summer 2027**, beginning in Cairo, Egypt, and continuing to Bosnia, in shā’ Allāh.
+Our inaugural cohort's educational journey is planned for **Summer 2027**, beginning in Cairo, Egypt, and continuing to Bosnia, in shā’ Allāh. This first initiative reflects our broader vision of creating educational opportunities for Muslim women, in shā’ Allāh.
 
 ## About the Project
 
-This website serves as the official digital home for Banāt al-Ummah. It introduces our sisterhood, shares our educational aspirations, documents our planned travels, and provides information about supporting our journey.
+This website serves as the official digital home for Banāt al-Ummah. It introduces our mission, shares our educational aspirations, documents the inaugural cohort's planned journey, and provides information about supporting the current initiative.
 
 ### Our Mission
 
-To pursue beneficial Islamic knowledge with sincerity, strengthen our understanding and practice of Islam, and encourage one another in lifelong learning.
+To sponsor groups of Muslim women in their pursuit of beneficial Islamic knowledge, fostering opportunities for education, spiritual growth, and service to their communities.
 
 ### Our Goals
 
-- Strengthen our Arabic language proficiency.
-- Improve our Qur'an recitation, memorization, and understanding.
-- Study foundational Islamic sciences.
-- Build meaningful sisterhood through shared learning.
-- Apply and share beneficial knowledge within our communities.
+- Support Arabic language learning and Qur'an study.
+- Encourage study of foundational Islamic sciences.
+- Create opportunities for Muslim women to learn together.
+- Share beneficial knowledge with families and communities.
 
 ## Our Journey | Summer 2027
 
@@ -37,7 +36,7 @@ We plan to study Arabic, Qur'an, and foundational Islamic sciences, including aq
 **Program:** Muslimah Qur'an Retreat  
 **Organizer:** Bosnia Institution
 
-Following our studies in Cairo, we hope to attend a Qur'an-centered retreat focused on learning, reflection, and sisterhood.
+Following the cohort's studies in Cairo, participants hope to attend a Qur'an-centered retreat focused on learning, reflection, and sisterhood.
 
 *All travel arrangements and educational programs are subject to confirmation.*
 
@@ -104,7 +103,7 @@ Replace `USERNAME` with the repository owner's GitHub username.
 
 ## Support Our Journey
 
-Our fundraising goal is **$30,000** to help cover educational programs, transportation, accommodation, and other necessary travel expenses.
+Our current initiative has a fundraising goal of **$30,000** to help cover the inaugural cohort's educational programs, transportation, accommodation, and other necessary travel expenses.
 
 Contributions are processed securely through Stripe Checkout on our website.
 
