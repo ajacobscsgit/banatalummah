@@ -20,6 +20,7 @@
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.4",
     "pg": "^8.23.1",
+    "resend": "^6.38.0",
     "stripe": "^23.1.0"
   }
 }

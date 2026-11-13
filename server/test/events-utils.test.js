@@ -19,13 +19,38 @@ function nextWednesday() {
   return date;
 }
 
-test("event data includes one closed class and five unannounced placeholders", () => {
+test("event data opens Arabic class registration and keeps five placeholders closed", () => {
   assert.equal(EVENTS.length, 6);
   assert.equal(EVENTS[0].id, "weekly-arabic-classes");
+  assert.equal(EVENTS[0].title, "Egyptian Arabic Classes");
+  assert.equal(EVENTS[0].subtitle, "Level 1 | Beginner Egyptian Arabic");
   assert.equal(EVENTS[0].registrationEnabled, false);
-  assert.equal(EVENTS[0].priceInCents, 1000);
-  assert.equal(EVENTS[0].capacityPerSession, null);
+  assert.equal(EVENTS[0].statusLabel, "Registration Open");
+  assert.equal(EVENTS[0].priceInCents, 1100);
+  assert.equal(EVENTS[0].monthlyPriceInCents, 4000);
+  assert.equal(EVENTS[0].capacityPerSession, 15);
+  assert.equal(EVENTS[0].firstSessionDate, "2026-11-25");
+  assert.equal(EVENTS[0].lastSessionDate, "2027-05-26");
+  assert.equal(
+    new Date(`${EVENTS[0].lastSessionDate}T12:00:00Z`).getUTCDay(),
+    3
+  );
+  assert.equal(EVENTS[0].location, "Cleveland, Ohio");
+  assert.equal(
+    EVENTS[0].registrationUrl,
+    "https://docs.google.com/forms/d/e/1FAIpQLSczB6kg91zSdDwvDgb9an7Bg6RRvHMKbT_EhzQlFbY5mgM12g/viewform"
+  );
+  assert.equal(
+    EVENTS[0].paymentUrl,
+    "https://buy.stripe.com/7sYbJ0bCs8Yjb045oX08g01"
+  );
+  assert.equal(EVENTS[0].firstPaymentDue, "November 23, 2026");
+  assert.match(EVENTS[0].parking, /Free parking/);
   assert.equal(EVENTS.filter(event => event.kind === "placeholder").length, 5);
+  assert.ok(
+    EVENTS.filter(event => event.kind === "placeholder")
+      .every(event => event.statusLabel === "Details coming soon")
+  );
   assert.ok(
     EVENTS.filter(event => event.kind === "placeholder")
       .every(event => !event.firstSessionDate && !event.priceInCents)
@@ -75,7 +100,7 @@ test("registration stays closed until every policy and capacity is set", () => {
   const event = {
     kind: "featured",
     firstSessionDate: "2026-11-25",
-    priceInCents: 1000,
+    priceInCents: 1100,
     currency: "USD",
     registrationEnabled: true,
     capacityPerSession: null,

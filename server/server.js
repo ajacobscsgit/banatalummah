@@ -9,6 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const { rateLimit } = require("express-rate-limit");
 const { Pool } = require("pg");
+const { Resend } = require("resend");
 const Stripe = require("stripe");
 const EVENTS = require("../js/events-data.js");
 const {
@@ -17,6 +18,11 @@ const {
   isValidEmail,
   isValidSessionDate
 } = require("./events-utils.js");
+const {
+  hashNewsletterToken,
+  isValidNewsletterToken,
+  parseNewsletterSubscription
+} = require("./newsletter-utils.js");
 
 const app = express();
 
@@ -77,6 +83,7 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 const DATABASE_URL = process.env.DATABASE_URL || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "";
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 const EVENT_ADMIN_TOKEN = process.env.EVENT_ADMIN_TOKEN || "";
 const EVENT_REGISTRATION_SETTING =
   process.env.EVENT_REGISTRATION_ENABLED || "false";
@@ -98,6 +105,13 @@ const EVENT_REGISTRATION_LIMIT = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests. Please try again later." }
+});
+const NEWSLETTER_SUBSCRIPTION_LIMIT = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 6,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many email signup requests. Please try again later." }
 });
 const ADMIN_REQUEST_LIMIT = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -151,6 +165,20 @@ function requireEventEmail(req, res, next) {
   next();
 }
 
+function requireNewsletterService(req, res, next) {
+  if (!pool || !databaseReady) {
+    return res.status(503).json({
+      error: "Newsletter signup is unavailable because subscriber storage is not configured."
+    });
+  }
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    return res.status(503).json({
+      error: "Newsletter confirmation email is not configured."
+    });
+  }
+  next();
+}
+
 async function sendResendEmail({ to, subject, html, text }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -170,8 +198,37 @@ async function sendResendEmail({ to, subject, html, text }) {
 
   if (!response.ok) {
     console.error("Resend email delivery failed:", response.status);
-    throw new Error("Email delivery failed.");
+    const error = new Error("Email delivery failed.");
+    error.code = `resend_${response.status}`;
+    throw error;
   }
+}
+
+async function sendNewsletterEmail({ to, subject, html, text }) {
+  if (!resend || !RESEND_FROM_EMAIL) {
+    const error = new Error("Resend is not configured.");
+    error.code = "resend_not_configured";
+    throw error;
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: RESEND_FROM_EMAIL,
+    to: [to],
+    subject,
+    html,
+    text
+  }, {
+    signal: AbortSignal.timeout(10000)
+  });
+  if (error) {
+    console.error("Resend email delivery failed:", error.statusCode || "provider error");
+    const deliveryError = new Error("Email delivery failed.");
+    deliveryError.code = Number.isInteger(error.statusCode)
+      ? `resend_${error.statusCode}`
+      : "resend_api_error";
+    throw deliveryError;
+  }
+  return { providerMessageId: data?.id || null };
 }
 
 async function sendEventInterestEmail(email, event, token) {
@@ -196,6 +253,108 @@ async function sendEventInterestEmail(email, event, token) {
       `<p><a href="${confirmLink}">Confirm your email address</a></p>` +
       `<p><a href="${unsubscribeLink}">Withdraw this update request</a></p>`
   });
+}
+
+async function sendNewsletterConfirmationEmail(email, firstName, token) {
+  const confirmationURL = new URL("newsletter-confirm.html", frontend);
+  const unsubscribeURL = new URL("newsletter-unsubscribe.html", frontend);
+  const tokenFragment = new URLSearchParams({ token }).toString();
+  confirmationURL.hash = tokenFragment;
+  unsubscribeURL.hash = tokenFragment;
+  const greetingName = firstName
+    ? ` ${escapeHTML(firstName)}`
+    : "";
+  const confirmLink = escapeHTML(confirmationURL.href);
+  const unsubscribeLink = escapeHTML(unsubscribeURL.href);
+
+  return sendNewsletterEmail({
+    to: email,
+    subject: "Confirm your Banāt al-Ummah email preferences",
+    text:
+      `Assalamu alaykum${firstName ? ` ${firstName}` : ""}. ` +
+      "Please confirm your email preferences to receive the updates you selected. " +
+      `Confirm: ${confirmationURL.href}. ` +
+      `Unsubscribe: ${unsubscribeURL.href}.`,
+    html:
+      `<div style="background:#fbf8f1;color:#293d32;font-family:Arial,sans-serif;padding:32px">` +
+      `<div style="margin:0 auto;max-width:560px">` +
+      `<p style="color:#967b4b;font-size:12px;letter-spacing:2px;text-transform:uppercase">Banāt al-Ummah</p>` +
+      `<h1 style="font-family:Georgia,serif;font-size:26px;font-weight:normal">As-salāmu alaykum${greetingName},</h1>` +
+      `<p>Please confirm your email preferences to receive the updates you selected. We will not send these updates until you confirm.</p>` +
+      `<p style="margin:28px 0"><a href="${confirmLink}" style="background:#315846;border-radius:4px;color:#fff;display:inline-block;padding:13px 20px;text-decoration:none">Confirm my email</a></p>` +
+      `<p style="font-size:13px">If you did not request these updates, you can ignore this message. ` +
+      `<a href="${unsubscribeLink}" style="color:#315846">Withdraw this request</a>.</p>` +
+      `<p style="border-top:1px solid #e7dfd1;color:#6b756d;font-size:12px;margin-top:28px;padding-top:16px">Seeking beneficial knowledge. Growing in community.</p>` +
+      `</div></div>`
+  });
+}
+
+async function sendNewsletterWelcomeEmail(email, unsubscribeToken) {
+  const unsubscribeURL = new URL("newsletter-unsubscribe.html", frontend);
+  const logoURL = new URL("assets/icons/logo.png", frontend);
+  unsubscribeURL.hash = new URLSearchParams({
+    token: unsubscribeToken
+  }).toString();
+  const unsubscribeLink = escapeHTML(unsubscribeURL.href);
+  const logoLink = escapeHTML(logoURL.href);
+  const text = [
+    "As-salāmu ʿalaykunna wa raḥmatullāhi wa barakātuh!",
+    "",
+    "Welcome to Banat Al-Ummah!",
+    "",
+    "We're delighted to have you join our growing community.",
+    "",
+    "You'll receive updates about the classes, gatherings, educational opportunities, and initiatives you selected.",
+    "",
+    "We look forward to learning, growing, and connecting with you, in shā' Allāh.",
+    "",
+    "With appreciation,",
+    "The Banat Al-Ummah Team",
+    "",
+    `Unsubscribe: ${unsubscribeURL.href}`
+  ].join("\n");
+  const html =
+    `<div style="background:#fbf8f1;color:#293d32;font-family:Arial,sans-serif;padding:32px">` +
+    `<div style="margin:0 auto;max-width:560px">` +
+    `<p style="text-align:center"><img src="${logoLink}" alt="Banat Al-Ummah" width="112" style="height:auto;max-width:112px"></p>` +
+    `<h1 style="color:#315846;font-family:Georgia,serif;font-size:26px;font-weight:normal">As-salāmu ʿalaykunna wa raḥmatullāhi wa barakātuh!</h1>` +
+    `<p>Welcome to Banat Al-Ummah!</p>` +
+    `<p>We're delighted to have you join our growing community.</p>` +
+    `<p>You'll receive updates about the classes, gatherings, educational opportunities, and initiatives you selected.</p>` +
+    `<p>We look forward to learning, growing, and connecting with you, in shā' Allāh.</p>` +
+    `<p>With appreciation,<br>The Banat Al-Ummah Team</p>` +
+    `<p style="border-top:1px solid #e7dfd1;color:#6b756d;font-size:12px;margin-top:28px;padding-top:16px">` +
+    `<a href="${unsubscribeLink}" style="color:#315846">Unsubscribe</a></p>` +
+    `</div></div>`;
+
+  return sendNewsletterEmail({
+    to: email,
+    subject: "Welcome to the Banat Al-Ummah Community 🌸",
+    html,
+    text
+  });
+}
+
+async function recordNewsletterDelivery(
+  subscriberId,
+  templateKey,
+  status,
+  providerMessageId = null,
+  errorCode = null
+) {
+  try {
+    await pool.query(
+      `INSERT INTO newsletter_delivery_attempts
+         (subscriber_id, template_key, status, provider_message_id, error_code)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [subscriberId, templateKey, status, providerMessageId, errorCode]
+    );
+  } catch (error) {
+    console.error(
+      "Newsletter delivery attempt could not be recorded:",
+      error.code || "database error"
+    );
+  }
 }
 
 async function sendRegistrationConfirmation(registration, event) {
@@ -234,12 +393,17 @@ async function sendRegistrationConfirmation(registration, event) {
 async function initializeDatabase() {
   if (!pool) return;
 
-  const migration = fs.readFileSync(
-    path.join(__dirname, "migrations", "001_event_registration.sql"),
-    "utf8"
-  );
-
-  await pool.query(migration);
+  for (const migrationName of [
+    "001_event_registration.sql",
+    "002_newsletter_subscribers.sql",
+    "003_newsletter_welcome_delivery.sql"
+  ]) {
+    const migration = fs.readFileSync(
+      path.join(__dirname, "migrations", migrationName),
+      "utf8"
+    );
+    await pool.query(migration);
+  }
   databaseReady = true;
 }
 
@@ -527,11 +691,21 @@ async function readProgress() {
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
-// Allow requests from your website preview.
-// This does not replace authentication or production abuse protection.
+// CORS only permits the live site and the explicitly configured frontend origin.
+const allowedFrontendOrigins = new Set([
+  frontend.origin,
+  "https://banatalummah.com",
+  "https://www.banatalummah.com",
+  ...(process.env.FRONTEND_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean)
+]);
 app.use(
   cors({
-    origin: frontend.origin,
+    origin: (origin, callback) => {
+      callback(null, !origin || allowedFrontendOrigins.has(origin));
+    },
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"]
   })
@@ -546,7 +720,10 @@ app.get("/api/health", (req, res) => {
     ok: true,
     mode: PAYMENT_MODE,
     eventDatabaseAvailable: Boolean(pool && databaseReady),
-    eventEmailAvailable: Boolean(RESEND_API_KEY && RESEND_FROM_EMAIL)
+    eventEmailAvailable: Boolean(RESEND_API_KEY && RESEND_FROM_EMAIL),
+    newsletterAvailable: Boolean(
+      pool && databaseReady && resend && RESEND_FROM_EMAIL
+    )
   });
 });
 
@@ -556,6 +733,382 @@ app.get("/api/config", (req, res) => {
     mode: PAYMENT_MODE
   });
 });
+
+app.post(
+  ["/api/newsletter/subscribe", "/api/newsletter-subscriptions"],
+  express.json({ limit: "10kb" }),
+  NEWSLETTER_SUBSCRIPTION_LIMIT,
+  requireNewsletterService,
+  async (req, res) => {
+    if (req.body?.website) {
+      return res.status(400).json({
+        error: "Your request could not be processed."
+      });
+    }
+
+    const parsed = parseNewsletterSubscription(req.body);
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+
+    const { email, firstName, preferences } = parsed.value;
+    const confirmationToken = crypto.randomBytes(32).toString("hex");
+    const unsubscribeToken = crypto.randomBytes(32).toString("hex");
+    const confirmationTokenHash = hashNewsletterToken(confirmationToken);
+    const unsubscribeTokenHash = hashNewsletterToken(unsubscribeToken);
+    let client;
+    let subscriberId;
+    let sendConfirmation = false;
+    let transactionStarted = false;
+
+    try {
+      client = await pool.connect();
+      await client.query("BEGIN");
+      transactionStarted = true;
+      await client.query(
+        "SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))",
+        ["newsletter-subscription", email]
+      );
+      const existing = await client.query(
+        `SELECT id, status
+           FROM newsletter_subscribers
+          WHERE email = $1
+          FOR UPDATE`,
+        [email]
+      );
+
+      if (existing.rows[0]?.status === "confirmed") {
+        await client.query(
+          `UPDATE newsletter_subscribers
+              SET first_name = $2,
+                  wants_upcoming_events = $3,
+                  wants_arabic_classes = $4,
+                  wants_general_updates = $5,
+                  consented_at = now(),
+                  updated_at = now()
+            WHERE email = $1`,
+          [
+            email,
+            firstName,
+            preferences.upcomingEvents,
+            preferences.arabicClasses,
+            preferences.generalUpdates
+          ]
+        );
+        await client.query("COMMIT");
+        transactionStarted = false;
+        return res.json({
+          message:
+            "Your request has been received. If confirmation is needed, please check your inbox."
+        });
+      }
+
+      if (existing.rowCount > 0) {
+        const updated = await client.query(
+          `UPDATE newsletter_subscribers
+              SET first_name = $2,
+                  wants_upcoming_events = $3,
+                  wants_arabic_classes = $4,
+                  wants_general_updates = $5,
+                  consented_at = now(),
+                  status = 'pending',
+                  confirmation_token_hash = $6,
+                  confirmation_expires_at = now() + interval '24 hours',
+                  unsubscribe_token_hash = $7,
+                  confirmed_at = NULL,
+                  unsubscribed_at = NULL,
+                  updated_at = now()
+            WHERE email = $1
+            RETURNING id`,
+          [
+            email,
+            firstName,
+            preferences.upcomingEvents,
+            preferences.arabicClasses,
+            preferences.generalUpdates,
+            confirmationTokenHash,
+            unsubscribeTokenHash
+          ]
+        );
+        subscriberId = updated.rows[0].id;
+      } else {
+        const inserted = await client.query(
+          `INSERT INTO newsletter_subscribers
+             (email, first_name, wants_upcoming_events, wants_arabic_classes,
+              wants_general_updates, status, confirmation_token_hash,
+              confirmation_expires_at, unsubscribe_token_hash)
+           VALUES ($1, $2, $3, $4, $5, 'pending', $6,
+                   now() + interval '24 hours', $7)
+           RETURNING id`,
+          [
+            email,
+            firstName,
+            preferences.upcomingEvents,
+            preferences.arabicClasses,
+            preferences.generalUpdates,
+            confirmationTokenHash,
+            unsubscribeTokenHash
+          ]
+        );
+        subscriberId = inserted.rows[0].id;
+      }
+
+      await client.query(
+        `UPDATE newsletter_unsubscribe_tokens
+            SET used_at = now()
+          WHERE subscriber_id = $1 AND used_at IS NULL`,
+        [subscriberId]
+      );
+      await client.query(
+        `INSERT INTO newsletter_unsubscribe_tokens (token_hash, subscriber_id)
+         VALUES ($1, $2)`,
+        [unsubscribeTokenHash, subscriberId]
+      );
+      await client.query("COMMIT");
+      transactionStarted = false;
+      sendConfirmation = true;
+    } catch (error) {
+      if (transactionStarted) {
+        try {
+          await client.query("ROLLBACK");
+        } catch (rollbackError) {
+          console.error(
+            "Newsletter subscription rollback failed:",
+            rollbackError.code || "database error"
+          );
+        }
+      }
+      console.error(
+        "Newsletter subscription could not be saved:",
+        error.code || "database error"
+      );
+      return res.status(503).json({
+        error: "Your request could not be saved. Please try again later."
+      });
+    } finally {
+      if (client) client.release();
+    }
+
+    if (sendConfirmation) {
+      try {
+        const delivery = await sendNewsletterConfirmationEmail(
+          email,
+          firstName,
+          confirmationToken
+        );
+        await recordNewsletterDelivery(
+          subscriberId,
+          "confirmation",
+          "sent",
+          delivery.providerMessageId
+        );
+      } catch (error) {
+        await recordNewsletterDelivery(
+          subscriberId,
+          "confirmation",
+          "failed",
+          null,
+          typeof error.code === "string" ? error.code : "provider_unavailable"
+        );
+        return res.status(502).json({
+          error:
+            "Your request is pending, but the confirmation email could not be sent. Please try again later."
+        });
+      }
+    }
+
+    return res.status(202).json({
+      message:
+        "Your request has been received. If confirmation is needed, please check your inbox."
+    });
+  }
+);
+
+app.post(
+  "/api/newsletter-subscriptions/confirm",
+  express.json({ limit: "10kb" }),
+  NEWSLETTER_SUBSCRIPTION_LIMIT,
+  requireDatabase,
+  async (req, res) => {
+    const { token } = req.body || {};
+    if (!isValidNewsletterToken(token)) {
+      return res.status(400).json({
+        error: "This confirmation link is invalid."
+      });
+    }
+
+    const unsubscribeToken = crypto.randomBytes(32).toString("hex");
+    let client;
+    let transactionStarted = false;
+    try {
+      client = await pool.connect();
+      await client.query("BEGIN");
+      transactionStarted = true;
+      const result = await client.query(
+        `UPDATE newsletter_subscribers
+            SET status = 'confirmed',
+                confirmation_token_hash = NULL,
+                confirmation_expires_at = NULL,
+                unsubscribe_token_hash = $2,
+                confirmed_at = now(),
+                updated_at = now()
+          WHERE confirmation_token_hash = $1
+            AND status = 'pending'
+            AND confirmation_expires_at > now()
+          RETURNING id, email, first_name`,
+        [hashNewsletterToken(token), hashNewsletterToken(unsubscribeToken)]
+      );
+      const subscriber = result.rows[0];
+      if (!subscriber) {
+        await client.query("ROLLBACK");
+        transactionStarted = false;
+        return res.status(404).json({
+          error: "This confirmation link has expired or was already used."
+        });
+      }
+
+      await client.query(
+        `INSERT INTO newsletter_unsubscribe_tokens (token_hash, subscriber_id)
+         VALUES ($1, $2)`,
+        [hashNewsletterToken(unsubscribeToken), subscriber.id]
+      );
+      await client.query("COMMIT");
+      transactionStarted = false;
+
+      let welcomeSent = false;
+      try {
+        const delivery = await sendNewsletterWelcomeEmail(
+          subscriber.email,
+          unsubscribeToken
+        );
+        await recordNewsletterDelivery(
+          subscriber.id,
+          "welcome",
+          "sent",
+          delivery.providerMessageId
+        );
+        welcomeSent = true;
+      } catch (error) {
+        await recordNewsletterDelivery(
+          subscriber.id,
+          "welcome",
+          "failed",
+          null,
+          typeof error.code === "string" ? error.code : "provider_unavailable"
+        );
+        console.error(
+          "Newsletter welcome email failed:",
+          error.code || "provider error"
+        );
+      }
+
+      return res.json({
+        message: welcomeSent
+          ? "Your email is confirmed. Welcome to the Banat Al-Ummah community!"
+          : "Your email is confirmed, but the welcome email could not be sent. Your subscription is active."
+      });
+    } catch (error) {
+      if (transactionStarted && client) {
+        try {
+          await client.query("ROLLBACK");
+        } catch (rollbackError) {
+          console.error(
+            "Newsletter confirmation rollback failed:",
+            rollbackError.code || "database error"
+          );
+        }
+      }
+      console.error(
+        "Newsletter confirmation failed:",
+        error.code || "database error"
+      );
+      return res.status(503).json({
+        error: "Your email could not be confirmed. Please try again."
+      });
+    } finally {
+      if (client) client.release();
+    }
+  }
+);
+
+app.post(
+  "/api/newsletter-subscriptions/unsubscribe",
+  express.json({ limit: "10kb" }),
+  NEWSLETTER_SUBSCRIPTION_LIMIT,
+  requireDatabase,
+  async (req, res) => {
+    const { token } = req.body || {};
+    if (!isValidNewsletterToken(token)) {
+      return res.status(400).json({
+        error: "This unsubscribe link is invalid."
+      });
+    }
+
+    let client;
+    let transactionStarted = false;
+    try {
+      client = await pool.connect();
+      await client.query("BEGIN");
+      transactionStarted = true;
+      const result = await client.query(
+        `WITH matching AS (
+           SELECT subscriber_id
+             FROM newsletter_unsubscribe_tokens
+            WHERE token_hash = $1 AND used_at IS NULL
+           UNION
+           SELECT id
+             FROM newsletter_subscribers
+            WHERE unsubscribe_token_hash = $1
+         )
+         UPDATE newsletter_subscribers
+            SET status = 'unsubscribed',
+                confirmation_token_hash = NULL,
+                confirmation_expires_at = NULL,
+                confirmed_at = NULL,
+                unsubscribed_at = now(),
+                updated_at = now()
+          WHERE id IN (SELECT subscriber_id FROM matching)
+            AND status <> 'unsubscribed'
+          RETURNING id`,
+        [hashNewsletterToken(token)]
+      );
+      if (result.rows[0]) {
+        await client.query(
+          `UPDATE newsletter_unsubscribe_tokens
+              SET used_at = now()
+            WHERE subscriber_id = $1 AND used_at IS NULL`,
+          [result.rows[0].id]
+        );
+      }
+      await client.query("COMMIT");
+      transactionStarted = false;
+      return res.json({
+        message:
+          "If this link matched a subscriber, their email preferences have been updated."
+      });
+    } catch (error) {
+      if (transactionStarted && client) {
+        try {
+          await client.query("ROLLBACK");
+        } catch (rollbackError) {
+          console.error(
+            "Newsletter unsubscribe rollback failed:",
+            rollbackError.code || "database error"
+          );
+        }
+      }
+      console.error(
+        "Newsletter unsubscribe failed:",
+        error.code || "database error"
+      );
+      return res.status(503).json({
+        error: "Your email preferences could not be updated. Please try again."
+      });
+    } finally {
+      if (client) client.release();
+    }
+  }
+);
 
 app.post(
   "/api/event-interests",
@@ -1083,6 +1636,47 @@ app.get(
       console.error("Event interest lookup failed:", error.code || "database error");
       return res.status(503).json({
         error: "Event interest records are temporarily unavailable."
+      });
+    }
+  }
+);
+
+app.get(
+  "/api/admin/newsletter-summary",
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+           count(*) FILTER (WHERE status = 'confirmed')::integer AS confirmed,
+           count(*) FILTER (WHERE status = 'pending')::integer AS pending,
+           count(*) FILTER (WHERE status = 'unsubscribed')::integer AS unsubscribed,
+           count(*) FILTER (
+             WHERE status = 'confirmed' AND wants_upcoming_events
+           )::integer AS upcoming_events,
+           count(*) FILTER (
+             WHERE status = 'confirmed' AND wants_arabic_classes
+           )::integer AS arabic_classes,
+           count(*) FILTER (
+             WHERE status = 'confirmed' AND wants_general_updates
+           )::integer AS general_updates,
+           (
+             SELECT count(*)::integer
+               FROM newsletter_delivery_attempts
+              WHERE status = 'failed'
+           ) AS delivery_failures
+         FROM newsletter_subscribers`
+      );
+      return res.json({ summary: result.rows[0] });
+    } catch (error) {
+      console.error(
+        "Newsletter summary lookup failed:",
+        error.code || "database error"
+      );
+      return res.status(503).json({
+        error: "Newsletter summary is temporarily unavailable."
       });
     }
   }

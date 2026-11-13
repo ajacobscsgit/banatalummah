@@ -65,19 +65,26 @@ banat-al-ummah/
 ├── registration-success.html
 ├── events-confirm.html
 ├── events-unsubscribe.html
+├── newsletter-confirm.html
+├── newsletter-unsubscribe.html
 │
 ├── css/
 │   ├── style.css
-│   └── events.css
+│   ├── events.css
+│   └── newsletter.css
 │
 ├── js/
 │   ├── main.js
 │   ├── events-data.js
-│   └── events.js
+│   ├── events.js
+│   └── newsletter.js
 │
 ├── assets/
 │   ├── images/
+│   │   ├── events/
 │   │   └── sisters/
+│   ├── videos/
+│   │   └── events/
 │   └── icons/
 │
 ├── README.md
@@ -87,7 +94,8 @@ banat-al-ummah/
     ├── events-utils.js
     ├── .env.example
     └── migrations/
-        └── 001_event_registration.sql
+        ├── 001_event_registration.sql
+        └── 002_newsletter_subscribers.sql
 ```
 
 ## Technologies Used
@@ -128,36 +136,76 @@ Contributions are processed securely through Stripe Checkout on our website.
 
 ## Events and Registration
 
-The Events pages are static files hosted with the website. Public event details
-are maintained in `js/events-data.js` and shared with the Express service so
-event prices and schedules are validated on the server.
+`events.html` contains the editorial Events page. Event titles, status, cover
+photos, and media paths are maintained in `js/events-data.js`. Replace
+`coverImage` or `cardImage` there to update the featured image or carousel
+image; future events without approved photography use designed placeholders.
+Do not add dates or registration details to placeholders until organizers
+confirm them.
 
-The proposed weekly Arabic class is shown as **registration opening soon**.
-Paid registration is intentionally disabled until the class schedule, public
-location, eligibility, cancellation/refund policy, deadline, and per-session
-capacity are confirmed. The current public description is the Greater Cleveland
-Area, Ohio; do not put a private venue address in the public event data or
-confirmation emails.
+Each event card opens the shared, data-driven detail template at
+`event.html?event=<event-id>`. Event titles, status, facts, descriptions,
+registration links, payment links, and optional detail sections are maintained
+in `js/events-data.js`. The Arabic Classes copy and display details are all
+configured there; `js/events.js` renders whichever sections apply to an event.
 
-### Private event services
+### Event media
 
-The Express service can use Render PostgreSQL for private interest and
-registration records and Resend for double-opt-in interest emails and paid
-registration confirmations. Donation processing remains separate. The website
-does not store card details; Stripe Checkout handles payment.
+- Add event and community photos to `assets/images/events/`.
+- Use the filenames listed in `assets/images/events/README.md` and
+  `assets/videos/events/README.md`; the hero, featured class, carousel,
+  Moments gallery, and Events newsletter popup now use Events-specific media.
+- The hero and community videos each support dedicated WebM and MP4 files and
+  posters configured in `js/events-data.js`. Missing media shows a
+  brand-colored placeholder rather than reusing assets from other pages.
+- The Arabic Classes detail hero uses `coverImage` for its photo. Optional
+  detail-page video sources can be added to that event's `mediaVideoSources`
+  array, with its poster set in `mediaPoster`. Keep uploaded class photos and
+  videos in the Events-specific folders above.
+- Use descriptive filenames, keep important subjects within the center-safe
+  area, and provide meaningful alt text when adding a photo to event data.
 
-Configure these only in the backend service environment, never in the website:
+See `assets/images/events/README.md` and `assets/videos/events/README.md` for
+the media placement details.
 
-- `DATABASE_URL`: Render PostgreSQL connection string.
-- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`: Resend API key and a verified sender.
-- `EVENT_ADMIN_TOKEN`: a unique random token with at least 32 characters.
-- `EVENT_REGISTRATION_ENABLED=false`: keep paid registration closed.
-- Existing Stripe variables: matching test/live keys and webhook signing secret.
+### Newsletter subscriptions
+
+The newsletter popup appears automatically after 10 seconds on the Home, About,
+Journey, Events, and event-details pages. Its dismissal is remembered; it does
+not appear more than once a week and a dismissal suppresses it for 30 days. It
+does not appear on donation, registration, or confirmation flows. Signup is
+separate from event registration and payment. It requires explicit consent and
+at least one selected topic, stores pending subscriptions in PostgreSQL, and
+sends a double-opt-in email through Resend. Only confirmed subscribers are
+eligible for future announcements. Unsubscribe links change the mailing-list
+status; they do not affect event registrations.
+
+The Render service reuses the existing backend-only `DATABASE_URL`,
+`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `FRONTEND_URL` settings. The backend
+uses the Resend Node SDK; `RESEND_FROM_EMAIL` must be a sender verified by
+Resend. Both `https://banatalummah.com` and
+`https://www.banatalummah.com` are allowed by CORS. Set
+`FRONTEND_ALLOWED_ORIGINS` only when additional preview origins are needed.
+Never put provider keys or subscriber data in frontend code. Startup applies
+`server/migrations/002_newsletter_subscribers.sql` and
+`server/migrations/003_newsletter_welcome_delivery.sql`. The frontend submits
+to `POST /api/newsletter/subscribe`; confirmation links expire after 24 hours
+and can only be used once. A branded welcome email is sent after confirmation.
+If PostgreSQL or the verified Resend sender is unavailable, signup remains
+disabled and displays the actual service state.
+
+Organizer-only aggregate counts and topic segments are available at
+`GET /api/admin/newsletter-summary` with the existing
+`Authorization: Bearer <EVENT_ADMIN_TOKEN>` header. No public endpoint returns
+subscriber records. Delivery attempts are stored separately from event
+registration and donation confirmations.
+
+The Arabic Classes registration button opens the Google Form; newsletter signup
+does not enroll students. The course payment link remains the existing Stripe
+Payment Link, and the donation system remains separate.
 
 Copy `server/.env.example` as a local reference; do not commit a real `.env`.
-The server creates the event tables at startup when `DATABASE_URL` is set. If
-the database is unavailable, the event APIs report unavailable while the
-existing donation routes remain available.
+The website does not store card details; Stripe handles payment.
 
 Point the Stripe webhook at
 `https://banatalummah.onrender.com/api/stripe-webhook`. Include the existing

@@ -2,6 +2,7 @@
 
 (() => {
   const API_URL = "https://banatalummah.onrender.com";
+  const ARABIC_CLASSES_ID = "weekly-arabic-classes";
   const events = window.BANAT_EVENTS || [];
   const money = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -15,6 +16,16 @@
     return element;
   }
 
+  function hideUnavailableImage(image) {
+    const hideImage = () => {
+      image.hidden = true;
+    };
+    image.addEventListener("error", hideImage, { once: true });
+    if (image.getAttribute("src") && image.complete && image.naturalWidth === 0) {
+      hideImage();
+    }
+  }
+
   function eventTitle(event, index) {
     return event.kind === "placeholder"
       ? `Future opportunity ${index}`
@@ -23,6 +34,14 @@
 
   function getEvent(eventId) {
     return events.find(event => event.id === eventId);
+  }
+
+  function createExternalLink(className, text, href) {
+    const link = createElement("a", className, text);
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    return link;
   }
 
   async function requestJSON(path, options) {
@@ -321,52 +340,571 @@
   }
 
   function createEventCard(event, index) {
-    const article = createElement(
-      "article",
-      `event-card${event.kind === "featured" ? " event-card-featured" : ""}`
-    );
+    const article = createElement("article", "event-card");
     article.dataset.category = event.category;
 
-    const artwork = createElement("div", "event-card-artwork");
-    artwork.setAttribute("aria-hidden", "true");
-    const motif = createElement("span", "event-card-motif", "ب");
-    artwork.appendChild(motif);
+    const cover = createElement("div", "event-card-cover");
+    cover.dataset.theme = event.coverTheme || "sage";
+    if (event.cardImage) {
+      const image = createElement("img");
+      image.alt = event.cardAlt || "";
+      image.loading = "lazy";
+      hideUnavailableImage(image);
+      image.src = event.cardImage;
+      cover.appendChild(image);
+    } else {
+      cover.setAttribute("aria-hidden", "true");
+      const placeholder = createElement(
+        "span",
+        "event-card-placeholder",
+        "A new opportunity is taking shape"
+      );
+      cover.appendChild(placeholder);
+    }
+    const category = createElement("span", "event-card-category", event.category);
+    cover.appendChild(category);
 
     const content = createElement("div", "event-card-content");
     const status = createElement(
       "p",
-      "event-status",
-      event.registrationEnabled ? "Registration open" : event.statusLabel
+      "event-card-status",
+      event.kind === "placeholder"
+        ? "Coming Soon"
+        : event.registrationEnabled
+          ? "Registration Open"
+          : event.statusLabel
     );
     const heading = createElement("h3");
     const title = createElement("a", "", eventTitle(event, index));
     title.href = `event.html?event=${encodeURIComponent(event.id)}`;
     heading.appendChild(title);
+    const subtitle = event.subtitle
+      ? createElement("p", "event-card-subtitle", event.subtitle)
+      : null;
     const summary = createElement("p", "event-card-summary", event.summary);
-    const metadata = createElement("p", "event-card-meta");
-    if (event.firstSessionDate) {
-      const date = new Date(`${event.firstSessionDate}T12:00:00`);
-      metadata.textContent =
-        `Proposed start: ${new Intl.DateTimeFormat("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric"
-        }).format(date)} · ${event.format}`;
-    } else {
-      metadata.textContent = "Dates and details to be announced";
+    const metadata = createElement("ul", "event-card-facts");
+    if (event.cardFacts) {
+      event.cardFacts.forEach(line => {
+        metadata.appendChild(createElement("li", "", line));
+      });
+    } else if (event.firstSessionDate) {
+      metadata.appendChild(
+        createElement(
+          "li",
+          "",
+          event.firstSessionDate
+            ? new Intl.DateTimeFormat("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric"
+              }).format(new Date(`${event.firstSessionDate}T12:00:00`))
+            : "No date announced"
+        )
+      );
     }
 
     const link = createElement(
       "a",
       "event-card-link",
-      event.kind === "featured" ? "View class details" : "Learn more"
+      "View Details"
     );
     link.href = `event.html?event=${encodeURIComponent(event.id)}`;
     link.setAttribute("aria-label", `${link.textContent}: ${title.textContent}`);
     link.append(" ", document.createTextNode("→"));
 
-    content.append(status, heading, summary, metadata, link);
-    article.append(artwork, content);
+    content.append(status, heading);
+    if (subtitle) content.appendChild(subtitle);
+    content.appendChild(summary);
+    if (metadata.children.length) content.appendChild(metadata);
+    content.appendChild(link);
+    article.append(cover, content);
+    return article;
+  }
+
+  function initializeEventsPageMedia() {
+    if (!document.body.classList.contains("events-page")) return;
+    const media = window.BANAT_EVENT_PAGE_MEDIA;
+    if (!media) return;
+
+    const featuredEvent = events.find(event => event.id === ARABIC_CLASSES_ID);
+    const featuredImage = document.getElementById("featured-event-image");
+    if (featuredEvent?.coverImage && featuredImage) {
+      featuredImage.alt = featuredEvent.coverAlt || "";
+      hideUnavailableImage(featuredImage);
+      featuredImage.src = featuredEvent.coverImage;
+    }
+
+    const heroVideo = document.getElementById("events-hero-video");
+    const heroFallback = document.querySelector(".events-hero-fallback");
+    if (heroVideo && media.hero?.sources?.length) {
+      heroVideo.poster = media.hero.poster;
+      if (heroFallback) {
+        hideUnavailableImage(heroFallback);
+        heroFallback.src = media.hero.fallbackImage;
+      }
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const revealVideo = () => {
+        heroVideo.dataset.ready = "true";
+        if (heroFallback) heroFallback.hidden = true;
+      };
+      heroVideo.addEventListener("loadeddata", revealVideo, { once: true });
+      heroVideo.addEventListener("error", () => {
+        heroVideo.hidden = true;
+        if (heroFallback) {
+          heroFallback.hidden =
+            heroFallback.complete && heroFallback.naturalWidth === 0;
+        }
+      }, { once: true });
+      media.hero.sources.forEach(source => {
+        const element = document.createElement("source");
+        element.src = source.src;
+        element.type = source.type;
+        heroVideo.appendChild(element);
+      });
+      heroVideo.muted = true;
+      heroVideo.loop = true;
+      heroVideo.playsInline = true;
+      heroVideo.controls = true;
+      heroVideo.autoplay = !reducedMotion.matches;
+      heroVideo.load();
+      if (!reducedMotion.matches) {
+        heroVideo.play().catch(() => {
+          heroVideo.autoplay = false;
+        });
+      }
+      reducedMotion.addEventListener("change", event => {
+        if (event.matches) {
+          heroVideo.pause();
+          heroVideo.autoplay = false;
+        }
+      });
+    }
+
+    const communityVideo = document.getElementById("community-video");
+    const communityFallback = document.querySelector(".moments-video-fallback");
+    if (communityVideo && media.communityVideo) {
+      communityVideo.poster = media.communityVideo.poster;
+      if (communityFallback) hideUnavailableImage(communityFallback);
+      media.communityVideo.sources.forEach(sourceData => {
+        const source = document.createElement("source");
+        source.src = sourceData.src;
+        source.type = sourceData.type;
+        communityVideo.appendChild(source);
+      });
+      communityVideo.addEventListener("loadeddata", () => {
+        if (communityFallback) communityFallback.hidden = true;
+      }, { once: true });
+      communityVideo.addEventListener("error", () => {
+        communityVideo.hidden = true;
+        if (communityFallback) {
+          communityFallback.hidden =
+            communityFallback.complete && communityFallback.naturalWidth === 0;
+        }
+      }, { once: true });
+      communityVideo.load();
+    }
+
+    const gallery = document.querySelector(".moments-gallery");
+    if (gallery && media.gallery) {
+      gallery.replaceChildren();
+      media.gallery.forEach(item => {
+        const figure = createElement("figure", "moments-photo");
+        const image = createElement("img");
+        image.alt = item.alt;
+        image.loading = "lazy";
+        hideUnavailableImage(image);
+        image.src = item.src;
+        figure.append(image, createElement("figcaption", "", item.caption));
+        gallery.appendChild(figure);
+      });
+    }
+  }
+
+  function createEventMedia(event) {
+    const figure = createElement("figure", "event-detail-media");
+    let videoReady = false;
+    const fallback = createElement(
+      "div",
+      "event-detail-media-fallback",
+      event.kind === "placeholder"
+        ? "A new opportunity is taking shape"
+        : "Event image coming soon"
+    );
+    fallback.setAttribute("aria-hidden", "true");
+    figure.appendChild(fallback);
+
+    let image = null;
+    if (event.coverImage) {
+      image = createElement("img");
+      image.alt = event.coverAlt || "";
+      image.loading = "eager";
+      image.decoding = "async";
+      image.addEventListener("load", () => {
+        fallback.hidden = true;
+      }, { once: true });
+      image.addEventListener("error", () => {
+        image.hidden = true;
+        fallback.hidden = videoReady;
+      }, { once: true });
+      image.src = event.coverImage;
+      figure.appendChild(image);
+    }
+
+    if (event.mediaVideoSources && event.mediaVideoSources.length) {
+      const video = createElement("video");
+      video.setAttribute("aria-label", `${eventTitle(event, events.indexOf(event))} video`);
+      video.controls = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      if (event.mediaPoster) video.poster = event.mediaPoster;
+      event.mediaVideoSources.forEach(sourceData => {
+        const source = createElement("source");
+        source.src = sourceData.src;
+        source.type = sourceData.type;
+        video.appendChild(source);
+      });
+      video.addEventListener("loadeddata", () => {
+        videoReady = true;
+        if (image) image.hidden = true;
+        fallback.hidden = true;
+      }, { once: true });
+      video.addEventListener("error", () => {
+        videoReady = false;
+        video.hidden = true;
+        const hasImage = image && image.complete && image.naturalWidth > 0;
+        if (hasImage) image.hidden = false;
+        fallback.hidden = Boolean(hasImage);
+      }, { once: true });
+      figure.appendChild(video);
+      video.load();
+    }
+
+    if (event.mediaCaption) {
+      figure.appendChild(createElement("figcaption", "", event.mediaCaption));
+    }
+    return figure;
+  }
+
+  function createEventIntroduction(event) {
+    const section = createElement("div", "event-detail-introduction");
+    const introduction = event.introduction;
+    if (introduction && event.description) {
+      section.appendChild(
+        createElement("p", "event-detail-welcome", event.description)
+      );
+    }
+    if (introduction && introduction.greeting) {
+      section.appendChild(
+        createElement("p", "event-detail-greeting", introduction.greeting)
+      );
+    }
+    (introduction && introduction.paragraphs || [event.summary]).forEach(text => {
+      section.appendChild(createElement("p", "", text));
+    });
+    if (introduction && introduction.callout) {
+      section.appendChild(
+        createElement("p", "event-detail-callout", introduction.callout)
+      );
+    }
+    return section;
+  }
+
+  function createSectionHeading(title, eyebrow) {
+    const header = createElement("div", "event-section-heading");
+    if (eyebrow) header.appendChild(createElement("p", "eyebrow", eyebrow));
+    header.appendChild(createElement("h2", "", title));
+    return header;
+  }
+
+  function createEventFacts(event) {
+    const items = event.details ? event.details.slice() : [];
+    if (event.registrationPolicy) {
+      items.push(
+        ["Who may register", event.registrationPolicy.eligibility],
+        ["Registration deadline", event.registrationPolicy.registrationDeadline],
+        ["Cancellation and refunds", event.registrationPolicy.cancellationRefundPolicy],
+        ["Location details", event.registrationPolicy.locationDetails]
+      );
+    }
+    if (!items.length) return null;
+    const section = createElement("section", "event-detail-section event-detail-overview");
+    section.id = "event-overview";
+    section.appendChild(
+      createSectionHeading(
+        event.kind === "featured" ? "Course Overview" : "Event Details",
+        "At a glance"
+      )
+    );
+    const facts = createElement("dl", "event-facts");
+    items.forEach(([term, value]) => {
+      const fact = createElement("div", "event-fact");
+      fact.append(
+        createElement("dt", "", term),
+        createElement("dd", "", value)
+      );
+      facts.appendChild(fact);
+    });
+    section.appendChild(facts);
+    return section;
+  }
+
+  function createBenefitsSection(event) {
+    if (!event.benefits || !event.benefits.length) return null;
+    const section = createElement("section", "event-detail-section event-benefits");
+    section.appendChild(
+      createSectionHeading("More Than a Language Class", "The experience")
+    );
+    const grid = createElement("div", "event-benefit-grid");
+    event.benefits.forEach((benefit, index) => {
+      const item = createElement("article", "event-benefit");
+      item.append(
+        createElement("span", "event-benefit-number", `0${index + 1}`),
+        createElement("h3", "", benefit.title),
+        createElement("p", "", benefit.description)
+      );
+      grid.appendChild(item);
+    });
+    section.appendChild(grid);
+    return section;
+  }
+
+  function createProgressionSection(event) {
+    if (!event.progression || !event.progression.length) return null;
+    const section = createElement("section", "event-detail-section event-progression");
+    section.appendChild(
+      createSectionHeading("A Foundation for What Comes Next", "Your learning path")
+    );
+    const list = createElement("ol", "event-progression-list");
+    event.progression.forEach(step => {
+      const item = createElement("li", "event-progression-step");
+      if (step.current) item.classList.add("is-current");
+      item.append(
+        createElement("h3", "", step.title),
+        createElement("p", "", step.description)
+      );
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  function createAboutSection(event) {
+    if (!event.aboutSections || !event.aboutSections.length) return null;
+    const section = createElement("section", "event-detail-section event-about");
+    section.appendChild(
+      createSectionHeading("About This Course", "A closer look")
+    );
+    const content = createElement("div", "event-about-content");
+    content.id = "event-about-content";
+    content.setAttribute("role", "region");
+    content.setAttribute("aria-label", "Course description");
+    event.aboutSections.forEach(group => {
+      const subsection = createElement("section", "event-about-subsection");
+      subsection.appendChild(createElement("h3", "", group.heading));
+      (group.paragraphs || []).forEach(text => {
+        subsection.appendChild(createElement("p", "", text));
+      });
+      if (group.items && group.items.length) {
+        const list = createElement("ul", "event-about-list");
+        group.items.forEach(text => {
+          list.appendChild(createElement("li", "", text));
+        });
+        subsection.appendChild(list);
+      }
+      content.appendChild(subsection);
+    });
+    const toggle = createElement("button", "event-about-toggle", "Read More");
+    toggle.type = "button";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", content.id);
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      content.classList.toggle("is-expanded", expanded);
+      toggle.textContent = expanded ? "Show Less" : "Read More";
+    });
+    section.append(content, toggle);
+    return section;
+  }
+
+  function createNumberedSteps(event) {
+    if (!event.enrollmentSteps || !event.enrollmentSteps.length) return null;
+    const section = createElement("section", "event-detail-section event-enrollment");
+    section.appendChild(
+      createSectionHeading("How to Join", "Enrollment")
+    );
+    const list = createElement("ol", "event-step-list");
+    event.enrollmentSteps.forEach(step => {
+      const item = createElement("li", "event-step");
+      item.append(
+        createElement("h3", "", step.title),
+        createElement("p", "", step.description)
+      );
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  function createPaymentSection(event) {
+    if (!event.paymentUrl || !event.feeSummary) return null;
+    const section = createElement("section", "event-detail-section event-payment");
+    section.appendChild(
+      createSectionHeading("Course Fees & Payment", "Clear and simple")
+    );
+    section.appendChild(
+      createElement("p", "event-payment-price", event.feeSummary)
+    );
+    if (event.firstPaymentDue) {
+      const due = createElement("p", "event-payment-due");
+      due.append(
+        document.createTextNode("First payment due: "),
+        createElement("strong", "", event.firstPaymentDue)
+      );
+      section.appendChild(due);
+    }
+    if (event.paymentPolicy) {
+      section.appendChild(createElement("p", "event-payment-policy", event.paymentPolicy));
+    }
+    section.appendChild(
+      createExternalLink(
+        "btn btn-outline event-payment-button",
+        event.paymentLabel || "Pay Course Fee",
+        event.paymentUrl
+      )
+    );
+    if (event.paymentNote) {
+      section.appendChild(
+        createElement("p", "event-payment-note", event.paymentNote)
+      );
+    }
+    return section;
+  }
+
+  function createFaqSection(event) {
+    if (!event.faq || !event.faq.length) return null;
+    const section = createElement("section", "event-detail-section event-faq");
+    section.appendChild(createSectionHeading("Frequently Asked Questions", "Good to know"));
+    const list = createElement("div", "event-faq-list");
+    event.faq.forEach(item => {
+      const details = createElement("details", "event-faq-item");
+      details.append(
+        createElement("summary", "", item.question),
+        createElement("p", "", item.answer)
+      );
+      list.appendChild(details);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  function createRegistrationLink(event, className) {
+    if (event.registrationUrl) {
+      return createExternalLink(
+        className,
+        event.registrationLabel || "Register Now",
+        event.registrationUrl
+      );
+    }
+    if (event.registrationEnabled || event.kind === "placeholder") {
+      const link = createElement(
+        "a",
+        className,
+        event.registrationEnabled
+          ? "Register for this event"
+          : "Get updates about this event"
+      );
+      link.href = `register.html?event=${encodeURIComponent(event.id)}`;
+      return link;
+    }
+    return null;
+  }
+
+  function createDetailActions(event, includeOverviewLink) {
+    const actions = createElement("div", "event-detail-actions");
+    const registration = createRegistrationLink(event, "btn btn-primary");
+    if (registration) actions.appendChild(registration);
+    if (includeOverviewLink) {
+      const overview = createElement("a", "text-link", "Explore the details");
+      overview.href = "#event-overview";
+      actions.appendChild(overview);
+    }
+    return actions;
+  }
+
+  function createEventDetail(event, index) {
+    const article = createElement("article", "event-detail");
+    const hero = createElement("section", "event-detail-hero");
+    const copy = createElement("div", "event-detail-hero-copy");
+    const statusText = event.kind === "placeholder"
+      ? "Coming Soon"
+      : event.registrationEnabled
+        ? "Registration Open"
+        : event.statusLabel;
+    copy.append(
+      createElement("p", "eyebrow event-detail-category", event.category),
+      createElement("p", "event-status", statusText),
+      createElement("h1", "", eventTitle(event, index))
+    );
+    if (event.subtitle) {
+      copy.appendChild(createElement("p", "event-detail-subtitle", event.subtitle));
+    }
+    copy.appendChild(
+      createDetailActions(
+        event,
+        Boolean((event.details && event.details.length) || event.registrationPolicy)
+      )
+    );
+    copy.appendChild(createEventIntroduction(event));
+    hero.append(copy, createEventMedia(event));
+    article.appendChild(hero);
+
+    const facts = createEventFacts(event);
+    const benefits = createBenefitsSection(event);
+    const progression = createProgressionSection(event);
+    const about = createAboutSection(event);
+    const enrollment = createNumberedSteps(event);
+    const payment = createPaymentSection(event);
+    const faq = createFaqSection(event);
+    [facts, benefits, progression, about, enrollment, payment, faq]
+      .filter(Boolean)
+      .forEach(section => article.appendChild(section));
+
+    if (event.detailsNote && !(event.details && event.details.length)) {
+      article.appendChild(
+        createElement("p", "event-detail-note", event.detailsNote)
+      );
+    }
+    const footer = createElement("section", "event-detail-footer");
+    footer.append(
+      createElement(
+        "h2",
+        "",
+        event.kind === "placeholder" ? "Stay in the loop" : "Ready to begin?"
+      ),
+      createElement(
+        "p",
+        "",
+        event.kind === "placeholder"
+          ? "Join the interest list to hear when more information is available."
+          : event.footerDescription ||
+            "Review the event information and follow the registration instructions."
+      )
+    );
+    const footerActions = createElement("div", "event-detail-actions");
+    const footerRegistration = createRegistrationLink(event, "btn btn-primary");
+    if (footerRegistration) footerActions.appendChild(footerRegistration);
+    const allEvents = createElement("a", "text-link", "Explore All Events");
+    allEvents.href = "events.html";
+    footerActions.appendChild(allEvents);
+    footer.appendChild(footerActions);
+    article.appendChild(footer);
+
+    document.title = `${eventTitle(event, index)} | Banāt al-Ummah`;
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) metaDescription.content = event.summary;
     return article;
   }
 
@@ -442,67 +980,7 @@
       return;
     }
 
-    const index = events.indexOf(event);
-    const article = createElement("article", "event-detail");
-    const heading = createElement("h1", "", eventTitle(event, index));
-    const status = createElement("p", "event-status", event.statusLabel);
-    const description = createElement("p", "event-detail-description", event.description);
-    const details = createElement("dl", "event-facts");
-    const facts = event.kind === "featured"
-      ? [
-          ["Schedule", `${event.weekday}s, ${event.startTime}–${event.endTime} Eastern`],
-          ["Proposed start", new Intl.DateTimeFormat("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            year: "numeric"
-          }).format(new Date(`${event.firstSessionDate}T12:00:00`))],
-          ["Format", event.format],
-          ["Location", event.location],
-          ["Cost", `${money.format(event.priceInCents / 100)} per session`]
-        ]
-      : [["Event details", "Dates, schedule, and location will be announced."]];
-
-    if (event.registrationPolicy) {
-      facts.push(
-        ["Who may register", event.registrationPolicy.eligibility],
-        ["Registration deadline", event.registrationPolicy.registrationDeadline],
-        ["Cancellation and refunds", event.registrationPolicy.cancellationRefundPolicy],
-        ["Location details", event.registrationPolicy.locationDetails]
-      );
-    }
-
-    facts.forEach(([term, value]) => {
-      details.append(
-        createElement("dt", "", term),
-        createElement("dd", "", value)
-      );
-    });
-
-    const note = createElement(
-      "p",
-      "event-detail-note",
-      event.registrationEnabled
-        ? "Registration is open while available sessions remain."
-        : event.detailsNote ||
-            "Details will be shared when this opportunity is announced."
-    );
-    const actions = createElement("div", "event-detail-actions");
-    const interest = createElement(
-      "a",
-      "btn btn-primary",
-      event.registrationEnabled
-        ? "Register for this event"
-        : "Get updates about this event"
-    );
-    interest.href = `register.html?event=${encodeURIComponent(event.id)}`;
-    const allEvents = createElement("a", "text-link", "Explore all events");
-    allEvents.href = "events.html";
-    actions.append(interest, allEvents);
-    article.append(status, heading, description, details, note, actions);
-    container.appendChild(article);
-
-    document.title = `${eventTitle(event, index)} | Banāt al-Ummah`;
+    container.replaceChildren(createEventDetail(event, events.indexOf(event)));
   }
 
   function initializeRegistrationPage() {
@@ -521,6 +999,28 @@
 
     const index = events.indexOf(event);
     const card = createElement("div", "event-state-card");
+    if (event.id === ARABIC_CLASSES_ID) {
+      card.append(
+        createElement("p", "eyebrow", "Registration Open"),
+        createElement("h1", "", eventTitle(event, index)),
+        createElement(
+          "p",
+          "",
+          "Register through the course form. Registration is subject to confirmation and availability."
+        ),
+        createExternalLink(
+          "btn btn-primary",
+          event.registrationLabel || "Register for Arabic Classes",
+          event.registrationUrl
+        )
+      );
+      const back = createElement("a", "text-link", "Return to event details");
+      back.href = `event.html?event=${encodeURIComponent(event.id)}`;
+      card.append(back);
+      container.appendChild(card);
+      return;
+    }
+
     card.append(
       createElement("p", "eyebrow", "Event Interest"),
       createElement("h1", "", eventTitle(event, index)),
@@ -721,6 +1221,7 @@
     initializeRegistrationStatus();
     initializeUnsubscribe();
     initializeInterestConfirmation();
+    initializeEventsPageMedia();
   }
 
   if (document.readyState === "loading") {
