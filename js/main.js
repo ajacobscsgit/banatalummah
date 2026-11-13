@@ -7,6 +7,8 @@
    - index.html
    - about.html
    - journey.html
+   - sponsored-groups.html
+   - album.html
 ========================================== */
 
 "use strict";

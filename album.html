@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse moments from Banat Al-Ummah preparations, events, and sisterhood.">
+  <meta name="theme-color" content="#183e2f">
+  <title>Journey Moments Album | Banāt al-Ummah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/sponsored-groups.css">
+  <script src="js/main.js" defer></script>
+  <script src="js/sponsored-groups-data.js" defer></script>
+  <script src="js/album.js" defer></script>
+</head>
+<body class="sponsored-groups-page album-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Banāt al-Ummah homepage">
+        <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+      </a>
+      <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+        <a href="events.html">Events</a>
+        <a href="sponsored-groups.html" class="active" aria-current="page">Sponsored Groups &amp; Stories</a>
+        <a class="btn btn-primary nav-donate" data-donate href="donate.html">Give Sadaqah <span aria-hidden="true">♡</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="album-main">
+    <section class="album-page-heading" aria-labelledby="album-title">
+      <div class="container">
+        <a class="album-close-link" href="sponsored-groups.html">← Close Album</a>
+        <p class="eyebrow">Our Album</p>
+        <h1 id="album-title">Journey Moments</h1>
+        <p>Memories from our preparations, events, and time together.</p>
+      </div>
+    </section>
+
+    <section class="album-gallery-section" aria-label="Photo album">
+      <div class="container">
+        <div class="album-filters" id="album-filters" role="group" aria-label="Filter photos by category"></div>
+        <div class="album-cohort-filter" id="album-cohort-filter" hidden>
+          <label for="album-cohort-select">Cohort</label>
+          <select id="album-cohort-select"></select>
+        </div>
+        <div class="album-gallery" id="album-gallery" aria-live="polite"></div>
+        <p class="stories-empty" id="album-empty" hidden>No photos are available in this collection yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <div>
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/icons/logo.png" alt="Banāt al-Ummah">
+        </a>
+        <p>
+          One Group. One pursuit.<br>
+          A journey toward beneficial knowledge.
+        </p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="journey.html">Our Journey</a>
+        <a href="events.html">Events</a>
+        <a href="sponsored-groups.html">Sponsored Groups &amp; Stories</a>
+        <a data-donate href="donate.html">Support Us</a>
+        <a href="mailto:banatalummah@gmail.com">Email Us: banatalummah@gmail.com</a>
+      </nav>
+    </div>
+    <div class="container footer-social">
+      <h2>Follow Our Journey</h2>
+      <nav id="social-links" aria-label="Banāt al-Ummah social media"></nav>
+      <p id="social-links-note" hidden>
+        Our social links will be available here soon.
+      </p>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year">2026</span> Banāt al-Ummah. All rights reserved.</span>
+      <span>Made with intention and hope.</span>
+      <span>Website and software developed by Anngel Jacobs.</span>
+    </div>
+  </footer>
+
+  <dialog class="album-lightbox" id="album-lightbox" aria-label="Photo viewer">
+    <div class="lightbox-frame">
+      <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close photo">×</button>
+      <button class="lightbox-arrow lightbox-previous" type="button" data-lightbox-step="-1" aria-label="Previous photo">←</button>
+      <figure class="lightbox-figure">
+        <img id="lightbox-image" alt="">
+        <figcaption id="lightbox-caption" hidden></figcaption>
+      </figure>
+      <button class="lightbox-arrow lightbox-next" type="button" data-lightbox-step="1" aria-label="Next photo">→</button>
+      <p class="lightbox-count" id="lightbox-count" aria-live="polite"></p>
+    </div>
+  </dialog>
+</body>
+</html>
