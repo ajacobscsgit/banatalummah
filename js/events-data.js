@@ -5,19 +5,21 @@
     {
       id: "weekly-arabic-classes",
       title: "Egyptian Arabic Classes",
-      subtitle: "Level 1 | Beginner Egyptian Arabic",
+      subtitle: "Level 1 | Egyptian Arabic Classes",
       kind: "featured",
       category: "Arabic",
       summary:
-        "A welcoming, interactive course for sisters beginning their journey in conversational Egyptian Arabic, also known as Masri.",
+        "Begin your Arabic-speaking journey with practical vocabulary, guided conversations, and interactive lessons. Our Level 1 course introduces the foundations of Egyptian Arabic, helping students build confidence communicating in everyday situations while preparing for continued learning.",
+      enrollmentNotice:
+        "To be considered for enrollment, students must complete both the registration form and course payment. Enrollment is subject to confirmation and seat availability.",
       scheduleLabel: "Wednesdays | 4:00–5:00 PM Eastern",
       courseDateRangeLabel: "November 25, 2026 – May 26, 2027",
-      feeSummary: "$11 per class | $40 per month",
+      feeSummary: "$11 per class or $40 per month",
       availabilityLabel: "Limited to 15 students",
       cardFacts: [
         "Wednesdays | 4:00–5:00 PM Eastern",
         "November 25, 2026 – May 26, 2027",
-        "$11 per class | $40 per month",
+        "$11 per class or $40 per month",
         "Limited to 15 students"
       ],
       coverImage: "assets/images/events/arabic-classes-featured.jpg",
@@ -25,144 +27,84 @@
       cardImage: "assets/images/events/arabic-classes-card.jpg",
       cardAlt: "Students taking part in a beginner Arabic class",
       coverTheme: "sage",
-      description:
-        "Welcome to Banat Al-Ummah's Beginner Egyptian Arabic Course!",
-      introduction: {
-        greeting: "As-salāmu ʿalaykunna wa raḥmatullāhi wa barakātuh!",
-        paragraphs: [
-          "Join 15 dedicated students for a welcoming, beginner-friendly journey in conversational Egyptian Arabic, also known as Masri."
-        ],
-        callout: "Limited to 15 students | Registration required"
-      },
+      heroDescription:
+        "Begin your Arabic-speaking journey with practical vocabulary, guided conversations, and interactive lessons. Our Level 1 course introduces the foundations of Egyptian Arabic, helping students build confidence communicating in everyday situations while preparing for continued learning.",
       details: [
-        ["Schedule", "Every Wednesday, 4:00 PM–5:00 PM Eastern"],
-        ["Course Dates", "November 25, 2026 – May 26, 2027"],
-        ["Duration", "1 hour per session"],
-        ["Location", "Cleveland, Ohio"],
-        ["Format", "In-person group learning with live virtual instruction from a teacher based in Egypt"],
+        ["Current level", "Level 1 | Egyptian Arabic · Beginner"],
+        ["Focus", "Conversational Egyptian Arabic"],
+        ["Schedule", "Wednesdays, 4:00–5:00 PM Eastern"],
+        ["Dates", "November 25, 2026–May 26, 2027"],
+        ["Format", "In-person group learning with live virtual instruction from an Egyptian teacher"],
+        ["Location", "Cleveland, Ohio, exact address provided privately to confirmed participants"],
         ["Availability", "Limited to 15 students"],
-        ["Class Fee", "$11 per class | $40 per month"],
-        ["Parking", "Free parking. Parking passes will be validated by the library."],
-        ["First Payment Due", "November 23, 2026"]
+        ["Fees", "$11 per class or $40 per month"],
+        ["First payment deadline", "November 20, 2026, 11:59 PM"]
       ],
+      benefitsIntro:
+        "Egyptian Arabic is one of the most widely understood Arabic dialects, largely due to Egypt's media and cultural influence. It is a distinct spoken dialect—not the same as Modern Standard Arabic or Qur'anic Arabic—and familiarity varies among speakers.",
       benefits: [
         {
-          title: "Build a conversational foundation",
+          title: "Everyday communication",
           description:
-            "Practice useful Egyptian Arabic vocabulary, everyday expressions, pronunciation, listening, and guided speaking."
+            "Build practical speaking skills and connect with people from different Arabic-speaking communities; familiarity with the dialect varies."
         },
         {
-          title: "Learn in a supportive small group",
+          title: "Expressions you hear",
           description:
-            "Join a limited cohort of sisters for interactive activities, questions, feedback, and community connection."
+            "Understand commonly heard Egyptian Arabic expressions used in daily conversation."
         },
         {
-          title: "Learn with a teacher based in Egypt",
+          title: "Egyptian media and culture",
           description:
-            "Receive live virtual instruction from Egypt while gathering in person with classmates."
+            "Follow more of the language in Egyptian films, shows, and everyday speech."
         },
         {
-          title: "Prepare for future learning",
+          title: "Confidence to keep learning",
           description:
-            "Build familiarity with Masri that may support future educational opportunities in Egypt; those opportunities are planned separately."
+            "Grow confidence for travel, friendships, and cultural exchange while building a foundation for continued dialect learning."
         }
       ],
       progression: [
         {
-          title: "Start with the foundations",
-          description:
-            "Learn beginner vocabulary, expressions, and pronunciation in this Level 1 course.",
+          title: "Level 1 | Beginner",
+          description: "Currently Enrolling",
           current: true
         },
         {
-          title: "Practice everyday conversation",
-          description:
-            "Use guided speaking, listening practice, and group activities to strengthen your foundation."
+          title: "Level 2 | Developing",
+          description: "Future Level"
         },
         {
-          title: "Explore future opportunities",
-          description:
-            "Future educational opportunities in Egypt are a broader vision and are not part of this course or guaranteed."
+          title: "Level 3 | Conversational",
+          description: "Future Level"
         }
       ],
-      aboutSections: [
-        {
-          heading: "Welcome to the Course",
-          paragraphs: [
-            "We are welcoming 15 dedicated students who are eager to begin their journey in learning conversational Egyptian Arabic, also known as Masri.",
-            "This beginner-friendly course offers a welcoming and interactive environment where sisters gather in person while receiving live instruction from a teacher based in Egypt via Zoom.",
-            "Each session combines structured language lessons, engaging group activities, light refreshments, and opportunities to connect with fellow Muslim women.",
-            "Whether you're completely new to Egyptian Arabic or looking to strengthen your foundation, we invite you to join us for an enjoyable and enriching learning experience, bi'ithnillāh."
-          ]
-        },
-        {
-          heading: "What to Expect",
-          paragraphs: [
-            "Students will participate in interactive weekly sessions focused on building a foundation in conversational Egyptian Arabic.",
-            "Our teacher will provide live virtual instruction directly from Egypt while students gather together in person.",
-            "Lessons will include:"
-          ],
-          items: [
-            "Beginner Egyptian Arabic vocabulary and expressions",
-            "Everyday conversational phrases",
-            "Pronunciation and listening practice",
-            "Guided speaking exercises",
-            "Interactive group activities",
-            "Opportunities to ask questions and receive feedback",
-            "Light refreshments and community engagement"
-          ]
-        },
-        {
-          heading: "Supporting Future Students",
-          paragraphs: [
-            "This course is also part of Banat Al-Ummah's broader vision of making Islamic education abroad more accessible.",
-            "As we work toward establishing educational opportunities in Egypt, we hope to prepare future groups of students by providing them with a foundation in conversational Egyptian Arabic before their departure.",
-            "By becoming familiar with the local dialect, future students may find it easier to navigate their surroundings, communicate with residents, and adjust to daily life in Egypt.",
-            "Our hope is that students approach their educational journeys with greater confidence, independence, and preparation, in shā' Allāh."
-          ]
-        }
-      ],
-      enrollmentSteps: [
-        {
-          title: "Submit the registration form",
-          description:
-            "Complete the Google Form to share your interest in joining the class."
-        },
-        {
-          title: "Wait for confirmation",
-          description:
-            "Enrollment is subject to confirmation and availability. Confirmed students will receive private location and arrival details."
-        },
-        {
-          title: "Follow the payment instructions",
-          description:
-            "After registration instructions are provided, complete payment as directed. Payment alone does not guarantee enrollment."
-        }
-      ],
+      progressionNote:
+        "Later levels are envisioned as part of the program's progressive learning pathway, but are not yet confirmed or scheduled. Advancement is not automatic.",
       faq: [
         {
-          question: "Who is this course for?",
+          question: "Who should register for Level 1?",
           answer:
-            "This Level 1 course is designed for sisters who are new to Egyptian Arabic or want to strengthen their beginner foundation."
+            "Level 1 is for beginners who are new to Egyptian Arabic or want to strengthen their foundations."
         },
         {
-          question: "Where will the in-person group meet?",
+          question: "What are the fees, and what do I need to do to be considered?",
           answer:
-            "Classes are in Cleveland, Ohio. Specific location and arrival details will be shared privately after registration is confirmed."
+            "The fee is $11 per class or $40 per month. Complete both the registration form and course payment by November 20, 2026, 11:59 PM. Payment does not guarantee enrollment; confirmation depends on availability."
         },
         {
-          question: "Does paying the course fee guarantee enrollment?",
+          question: "Where do classes meet?",
           answer:
-            "No. Registration is subject to confirmation and availability. Please complete the form and follow the organizers' instructions."
+            "The group meets in Cleveland, Ohio. The exact address is shared privately with confirmed participants."
         },
         {
-          question: "What if I have a question about attendance or payment?",
+          question: "What if I need to miss a class?",
           answer:
-            "Please refer to the course attendance and payment policy provided by the organizers during the registration process."
+            "Please refer to the attendance and payment policy shared by the organizers during enrollment."
         }
       ],
       format:
-        "In-person group learning with live virtual instruction from a teacher based in Egypt",
+        "In-person group learning with live virtual instruction from an Egyptian teacher",
       location: "Cleveland, Ohio",
       firstSessionDate: "2026-11-25",
       lastSessionDate: "2027-05-26",
@@ -175,23 +117,19 @@
       monthlyPriceInCents: 4000,
       currency: "USD",
       capacityPerSession: 15,
-      firstPaymentDue: "November 23, 2026",
-      parking: "Free parking. Parking passes will be validated by the library.",
+      firstPaymentDue: "November 20, 2026, 11:59 PM",
       registrationPolicy: null,
       registrationEnabled: false,
       statusLabel: "Registration Open",
+      heroBadge: "CURRENTLY ENROLLING · LEVEL 1",
       detailsNote: "Limited to 15 students | Registration required",
       registrationUrl:
         "https://docs.google.com/forms/d/e/1FAIpQLSczB6kg91zSdDwvDgb9an7Bg6RRvHMKbT_EhzQlFbY5mgM12g/viewform",
-      registrationLabel: "Register for Arabic Classes",
+      registrationLabel: "Register for Level 1",
       paymentUrl: "https://buy.stripe.com/7sYbJ0bCs8Yjb045oX08g01",
       paymentLabel: "Pay Course Fee",
-      paymentPolicy:
-        "Payment is required for each scheduled class in accordance with the course attendance and payment policy.",
-      paymentNote:
-        "Please complete the registration form and follow the payment instructions to finalize your enrollment. Registration is subject to confirmation and availability.",
       footerDescription:
-        "Complete the registration form and wait for confirmation before making payment. Registration is subject to confirmation and availability.",
+        "Complete both the registration form and course payment to be considered for enrollment. Confirmation depends on seat availability.",
       mediaVideoSources: [],
       mediaPoster: "assets/images/events/arabic-classes-featured.jpg"
     },

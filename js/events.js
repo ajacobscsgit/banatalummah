@@ -589,25 +589,9 @@
 
   function createEventIntroduction(event) {
     const section = createElement("div", "event-detail-introduction");
-    const introduction = event.introduction;
-    if (introduction && event.description) {
-      section.appendChild(
-        createElement("p", "event-detail-welcome", event.description)
-      );
-    }
-    if (introduction && introduction.greeting) {
-      section.appendChild(
-        createElement("p", "event-detail-greeting", introduction.greeting)
-      );
-    }
-    (introduction && introduction.paragraphs || [event.summary]).forEach(text => {
-      section.appendChild(createElement("p", "", text));
-    });
-    if (introduction && introduction.callout) {
-      section.appendChild(
-        createElement("p", "event-detail-callout", introduction.callout)
-      );
-    }
+    section.appendChild(
+      createElement("p", "", event.heroDescription || event.summary)
+    );
     return section;
   }
 
@@ -654,8 +638,13 @@
     if (!event.benefits || !event.benefits.length) return null;
     const section = createElement("section", "event-detail-section event-benefits");
     section.appendChild(
-      createSectionHeading("More Than a Language Class", "The experience")
+      createSectionHeading("Why Learn Egyptian Arabic?", "A useful spoken dialect")
     );
+    if (event.benefitsIntro) {
+      section.appendChild(
+        createElement("p", "event-benefits-intro", event.benefitsIntro)
+      );
+    }
     const grid = createElement("div", "event-benefit-grid");
     event.benefits.forEach((benefit, index) => {
       const item = createElement("article", "event-benefit");
@@ -674,7 +663,7 @@
     if (!event.progression || !event.progression.length) return null;
     const section = createElement("section", "event-detail-section event-progression");
     section.appendChild(
-      createSectionHeading("A Foundation for What Comes Next", "Your learning path")
+      createSectionHeading("Your Arabic Learning Journey", "A progressive pathway")
     );
     const list = createElement("ol", "event-progression-list");
     event.progression.forEach(step => {
@@ -687,97 +676,9 @@
       list.appendChild(item);
     });
     section.appendChild(list);
-    return section;
-  }
-
-  function createAboutSection(event) {
-    if (!event.aboutSections || !event.aboutSections.length) return null;
-    const section = createElement("section", "event-detail-section event-about");
-    section.appendChild(
-      createSectionHeading("About This Course", "A closer look")
-    );
-    const content = createElement("div", "event-about-content");
-    content.id = "event-about-content";
-    content.setAttribute("role", "region");
-    content.setAttribute("aria-label", "Course description");
-    event.aboutSections.forEach(group => {
-      const subsection = createElement("section", "event-about-subsection");
-      subsection.appendChild(createElement("h3", "", group.heading));
-      (group.paragraphs || []).forEach(text => {
-        subsection.appendChild(createElement("p", "", text));
-      });
-      if (group.items && group.items.length) {
-        const list = createElement("ul", "event-about-list");
-        group.items.forEach(text => {
-          list.appendChild(createElement("li", "", text));
-        });
-        subsection.appendChild(list);
-      }
-      content.appendChild(subsection);
-    });
-    const toggle = createElement("button", "event-about-toggle", "Read More");
-    toggle.type = "button";
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-controls", content.id);
-    toggle.addEventListener("click", () => {
-      const expanded = toggle.getAttribute("aria-expanded") !== "true";
-      toggle.setAttribute("aria-expanded", String(expanded));
-      content.classList.toggle("is-expanded", expanded);
-      toggle.textContent = expanded ? "Show Less" : "Read More";
-    });
-    section.append(content, toggle);
-    return section;
-  }
-
-  function createNumberedSteps(event) {
-    if (!event.enrollmentSteps || !event.enrollmentSteps.length) return null;
-    const section = createElement("section", "event-detail-section event-enrollment");
-    section.appendChild(
-      createSectionHeading("How to Join", "Enrollment")
-    );
-    const list = createElement("ol", "event-step-list");
-    event.enrollmentSteps.forEach(step => {
-      const item = createElement("li", "event-step");
-      item.append(
-        createElement("h3", "", step.title),
-        createElement("p", "", step.description)
-      );
-      list.appendChild(item);
-    });
-    section.appendChild(list);
-    return section;
-  }
-
-  function createPaymentSection(event) {
-    if (!event.paymentUrl || !event.feeSummary) return null;
-    const section = createElement("section", "event-detail-section event-payment");
-    section.appendChild(
-      createSectionHeading("Course Fees & Payment", "Clear and simple")
-    );
-    section.appendChild(
-      createElement("p", "event-payment-price", event.feeSummary)
-    );
-    if (event.firstPaymentDue) {
-      const due = createElement("p", "event-payment-due");
-      due.append(
-        document.createTextNode("First payment due: "),
-        createElement("strong", "", event.firstPaymentDue)
-      );
-      section.appendChild(due);
-    }
-    if (event.paymentPolicy) {
-      section.appendChild(createElement("p", "event-payment-policy", event.paymentPolicy));
-    }
-    section.appendChild(
-      createExternalLink(
-        "btn btn-outline event-payment-button",
-        event.paymentLabel || "Pay Course Fee",
-        event.paymentUrl
-      )
-    );
-    if (event.paymentNote) {
+    if (event.progressionNote) {
       section.appendChild(
-        createElement("p", "event-payment-note", event.paymentNote)
+        createElement("p", "event-progression-note", event.progressionNote)
       );
     }
     return section;
@@ -822,14 +723,18 @@
     return null;
   }
 
-  function createDetailActions(event, includeOverviewLink) {
+  function createDetailActions(event) {
     const actions = createElement("div", "event-detail-actions");
     const registration = createRegistrationLink(event, "btn btn-primary");
     if (registration) actions.appendChild(registration);
-    if (includeOverviewLink) {
-      const overview = createElement("a", "text-link", "Explore the details");
-      overview.href = "#event-overview";
-      actions.appendChild(overview);
+    if (event.paymentUrl) {
+      actions.appendChild(
+        createExternalLink(
+          "btn btn-outline",
+          event.paymentLabel || "Pay Course Fee",
+          event.paymentUrl
+        )
+      );
     }
     return actions;
   }
@@ -838,11 +743,14 @@
     const article = createElement("article", "event-detail");
     const hero = createElement("section", "event-detail-hero");
     const copy = createElement("div", "event-detail-hero-copy");
-    const statusText = event.kind === "placeholder"
-      ? "Coming Soon"
-      : event.registrationEnabled
-        ? "Registration Open"
-        : event.statusLabel;
+    let statusText = event.statusLabel;
+    if (event.kind === "placeholder") {
+      statusText = "Coming Soon";
+    } else if (event.heroBadge) {
+      statusText = event.heroBadge;
+    } else if (event.registrationEnabled) {
+      statusText = "Registration Open";
+    }
     copy.append(
       createElement("p", "eyebrow event-detail-category", event.category),
       createElement("p", "event-status", statusText),
@@ -851,24 +759,21 @@
     if (event.subtitle) {
       copy.appendChild(createElement("p", "event-detail-subtitle", event.subtitle));
     }
-    copy.appendChild(
-      createDetailActions(
-        event,
-        Boolean((event.details && event.details.length) || event.registrationPolicy)
-      )
-    );
     copy.appendChild(createEventIntroduction(event));
+    copy.appendChild(createDetailActions(event));
+    if (event.enrollmentNotice) {
+      copy.appendChild(
+        createElement("p", "event-enrollment-notice", event.enrollmentNotice)
+      );
+    }
     hero.append(copy, createEventMedia(event));
     article.appendChild(hero);
 
     const facts = createEventFacts(event);
     const benefits = createBenefitsSection(event);
     const progression = createProgressionSection(event);
-    const about = createAboutSection(event);
-    const enrollment = createNumberedSteps(event);
-    const payment = createPaymentSection(event);
     const faq = createFaqSection(event);
-    [facts, benefits, progression, about, enrollment, payment, faq]
+    [facts, benefits, progression, faq]
       .filter(Boolean)
       .forEach(section => article.appendChild(section));
 
@@ -893,13 +798,7 @@
             "Review the event information and follow the registration instructions."
       )
     );
-    const footerActions = createElement("div", "event-detail-actions");
-    const footerRegistration = createRegistrationLink(event, "btn btn-primary");
-    if (footerRegistration) footerActions.appendChild(footerRegistration);
-    const allEvents = createElement("a", "text-link", "Explore All Events");
-    allEvents.href = "events.html";
-    footerActions.appendChild(allEvents);
-    footer.appendChild(footerActions);
+    footer.appendChild(createDetailActions(event));
     article.appendChild(footer);
 
     document.title = `${eventTitle(event, index)} | Banāt al-Ummah`;

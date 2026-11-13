@@ -23,9 +23,10 @@ test("event data opens Arabic class registration and keeps five placeholders clo
   assert.equal(EVENTS.length, 6);
   assert.equal(EVENTS[0].id, "weekly-arabic-classes");
   assert.equal(EVENTS[0].title, "Egyptian Arabic Classes");
-  assert.equal(EVENTS[0].subtitle, "Level 1 | Beginner Egyptian Arabic");
+  assert.equal(EVENTS[0].subtitle, "Level 1 | Egyptian Arabic Classes");
   assert.equal(EVENTS[0].registrationEnabled, false);
   assert.equal(EVENTS[0].statusLabel, "Registration Open");
+  assert.equal(EVENTS[0].heroBadge, "CURRENTLY ENROLLING · LEVEL 1");
   assert.equal(EVENTS[0].priceInCents, 1100);
   assert.equal(EVENTS[0].monthlyPriceInCents, 4000);
   assert.equal(EVENTS[0].capacityPerSession, 15);
@@ -44,8 +45,16 @@ test("event data opens Arabic class registration and keeps five placeholders clo
     EVENTS[0].paymentUrl,
     "https://buy.stripe.com/7sYbJ0bCs8Yjb045oX08g01"
   );
-  assert.equal(EVENTS[0].firstPaymentDue, "November 23, 2026");
-  assert.match(EVENTS[0].parking, /Free parking/);
+  assert.equal(EVENTS[0].firstPaymentDue, "November 20, 2026, 11:59 PM");
+  assert.equal(
+    EVENTS[0].details.find(([label]) => label === "Current level")[1],
+    "Level 1 | Egyptian Arabic · Beginner"
+  );
+  assert.equal(EVENTS[0].parking, undefined);
+  assert.equal(
+    EVENTS[0].details.find(([label]) => label === "Location")[1],
+    "Cleveland, Ohio, exact address provided privately to confirmed participants"
+  );
   assert.equal(EVENTS.filter(event => event.kind === "placeholder").length, 5);
   assert.ok(
     EVENTS.filter(event => event.kind === "placeholder")

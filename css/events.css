@@ -385,7 +385,7 @@
 
 .event-detail-page {
   max-width: 1160px;
-  padding-block: 30px 76px;
+  padding-block: 24px 60px;
 }
 
 .back-link {
@@ -403,9 +403,9 @@
 .event-detail-hero {
   display: grid;
   grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
-  align-items: start;
+  align-items: center;
   gap: clamp(30px, 5.5vw, 74px);
-  margin-bottom: clamp(52px, 8vw, 88px);
+  margin-bottom: clamp(36px, 5vw, 54px);
 }
 
 .event-detail-hero-copy {
@@ -424,12 +424,12 @@
 .event-detail .event-status {
   display: inline-flex;
   margin: 0 0 14px;
-  padding: 5px 12px;
+  padding: 7px 13px;
   border: 1px solid rgb(49 88 70 / 22%);
   border-radius: 999px;
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
-  font-size: 0.79rem;
+  font-size: 0.82rem;
   font-weight: 700;
 }
 
@@ -450,45 +450,27 @@
 .event-detail-introduction {
   max-width: 610px;
   color: var(--color-text-muted);
-  line-height: 1.8;
+  font-size: 1.02rem;
+  line-height: 1.72;
 }
 
 .event-detail-introduction p {
-  margin-bottom: 13px;
-}
-
-.event-detail-welcome {
-  color: var(--color-text);
-  font-family: var(--font-heading);
-  font-size: 1.04rem;
-  font-weight: 700;
-}
-
-.event-detail-greeting {
-  color: var(--color-primary-dark);
-  font-family: var(--font-arabic);
-  font-size: 1.17rem;
-}
-
-.event-detail-callout {
-  padding-left: 13px;
-  border-left: 2px solid var(--detail-gold);
-  color: var(--color-primary-dark);
-  font-weight: 700;
+  margin-bottom: 0;
 }
 
 .event-facts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 26px;
+  gap: 12px;
   margin: 0;
-  border-top: 1px solid var(--color-border);
 }
 
 .event-fact {
   min-width: 0;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--detail-cream);
 }
 
 .event-fact dt,
@@ -499,7 +481,7 @@
 
 .event-facts dt {
   color: var(--color-text-muted);
-  font-size: 0.78rem;
+  font-size: 0.81rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -507,8 +489,9 @@
 .event-facts dd {
   padding-top: 4px;
   color: var(--color-text);
-  font-size: 0.94rem;
+  font-size: 0.97rem;
   font-weight: 500;
+  line-height: 1.5;
 }
 
 .event-detail-media {
@@ -574,8 +557,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 22px;
-  margin-top: 22px;
+  gap: 12px;
+  margin-top: 18px;
 }
 
 .event-detail-actions .text-link {
@@ -583,8 +566,23 @@
   font-weight: 600;
 }
 
+.event-detail-actions .btn {
+  min-height: 48px;
+}
+
+.event-enrollment-notice {
+  max-width: 590px;
+  padding: 12px 15px;
+  margin: 14px 0 0;
+  border-left: 3px solid var(--detail-gold);
+  background: var(--detail-cream);
+  color: var(--color-primary-dark);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
 .event-detail-section {
-  margin-block: clamp(46px, 7vw, 76px);
+  margin-block: clamp(34px, 5vw, 48px);
 }
 
 .event-section-heading {
@@ -609,19 +607,28 @@
 }
 
 .event-detail-overview {
-  padding-top: 22px;
-  border-top: 1px solid var(--detail-gold);
+  padding-top: 0;
 }
 
 .event-benefit-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
+}
+
+.event-benefits-intro {
+  max-width: 850px;
+  margin: -7px 0 22px;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.7;
 }
 
 .event-benefit {
-  padding: 18px 17px 18px 0;
-  border-top: 1px solid var(--color-border);
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--detail-cream);
 }
 
 .event-benefit-number {
@@ -633,9 +640,7 @@
 }
 
 .event-detail .event-benefit h3,
-.event-detail .event-progression-step h3,
-.event-detail .event-step h3,
-.event-detail .event-about-subsection h3 {
+.event-detail .event-progression-step h3 {
   margin: 0 0 8px;
   color: var(--color-primary-dark);
   font-family: var(--font-heading);
@@ -644,19 +649,17 @@
 }
 
 .event-benefit p,
-.event-progression-step p,
-.event-step p,
-.event-about-subsection p {
+.event-progression-step p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.93rem;
+  font-size: 0.96rem;
   line-height: 1.75;
 }
 
 .event-progression-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
+  gap: 12px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -665,8 +668,10 @@
 
 .event-progression-step {
   position: relative;
-  padding: 20px 22px 4px 0;
-  border-top: 1px solid var(--color-border);
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--detail-cream);
   counter-increment: learning-step;
 }
 
@@ -680,131 +685,21 @@
 }
 
 .event-progression-step.is-current {
-  border-top: 2px solid var(--detail-forest);
+  border: 2px solid var(--detail-forest);
+  background: #f0f3ed;
 }
 
-.event-about {
-  padding: clamp(20px, 4vw, 34px);
-  border-left: 3px solid var(--detail-gold);
-  background: var(--color-surface);
-}
-
-.event-about-content {
-  position: relative;
-  max-height: 320px;
-  overflow: hidden;
-  transition: max-height 400ms ease;
-}
-
-.event-about-content:not(.is-expanded)::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 78px;
-  background: linear-gradient(transparent, var(--color-surface));
-  content: "";
-  pointer-events: none;
-}
-
-.event-about-content.is-expanded {
-  max-height: 5000px;
-}
-
-.event-about-subsection + .event-about-subsection {
-  margin-top: 24px;
-}
-
-.event-about-list {
-  padding-left: 22px;
-  margin: 11px 0 0;
+.event-progression-note {
+  max-width: 780px;
+  margin: 14px 0 0;
   color: var(--color-text-muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
 }
 
-.event-about-list li {
-  padding-left: 4px;
-  margin-bottom: 6px;
-}
-
-.event-about-toggle {
-  padding: 8px 0 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-primary);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-color: var(--detail-gold);
-  text-underline-offset: 4px;
-}
-
-.event-about-toggle:focus-visible,
 .event-faq-item summary:focus-visible {
   outline: 3px solid rgb(49 88 70 / 30%);
   outline-offset: 4px;
-}
-
-.event-step-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  counter-reset: enrollment-step;
-}
-
-.event-step {
-  counter-increment: enrollment-step;
-}
-
-.event-step::before {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  margin-bottom: 13px;
-  border: 1px solid var(--detail-gold);
-  border-radius: 50%;
-  color: var(--color-primary-dark);
-  content: counter(enrollment-step);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.event-payment {
-  padding: clamp(22px, 4vw, 34px);
-  border: 1px solid var(--color-border);
-  border-top: 3px solid var(--detail-gold);
-  background: var(--detail-cream);
-}
-
-.event-payment-price {
-  margin: 0 0 5px;
-  color: var(--color-primary-dark);
-  font-family: var(--font-heading);
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
-}
-
-.event-payment-due,
-.event-payment-policy,
-.event-payment-note {
-  max-width: 760px;
-  margin: 8px 0;
-  color: var(--color-text-muted);
-  line-height: 1.7;
-}
-
-.event-payment-due strong {
-  color: var(--color-text);
-}
-
-.event-payment-button {
-  margin-block: 10px 4px;
-}
-
-.event-payment-note {
-  font-size: 0.87rem;
 }
 
 .event-faq-list {
@@ -866,8 +761,8 @@
 }
 
 .event-detail-footer {
-  padding: clamp(24px, 4vw, 40px);
-  margin-top: clamp(48px, 7vw, 80px);
+  padding: clamp(24px, 4vw, 36px);
+  margin-top: clamp(36px, 5vw, 52px);
   border-radius: var(--radius-md);
   background: var(--detail-forest);
   color: #fffdf9;
@@ -1007,10 +902,6 @@
 @media (prefers-reduced-motion: reduce) {
   .events-list {
     scroll-behavior: auto;
-  }
-
-  .event-about-content {
-    transition: none;
   }
 }
 
@@ -1981,14 +1872,13 @@
     border-radius: 78px 12px 12px 12px;
   }
 
-  .event-progression-list,
-  .event-step-list {
+  .event-progression-list {
     grid-template-columns: 1fr;
     gap: 18px;
   }
 
   .event-progression-step {
-    padding: 16px 0 0;
+    padding: 16px;
   }
 
   .event-detail-footer {
@@ -2012,10 +1902,6 @@
 
   .event-detail-actions .btn {
     text-align: center;
-  }
-
-  .event-about {
-    padding: 20px 17px;
   }
 
   .event-detail-media {
