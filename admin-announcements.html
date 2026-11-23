@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Email Announcements | Banāt al-Ummah</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin-announcements.css">
+  <script src="js/admin-announcements.js" defer></script>
+</head>
+<body class="announcement-admin">
+  <main class="announcement-admin-shell">
+    <header class="announcement-admin-header">
+      <p class="eyebrow">Administrator</p>
+      <h1>Email Announcements</h1>
+      <p>Compose an announcement for confirmed Banāt al-Ummah subscribers.</p>
+    </header>
+
+    <section class="announcement-access" id="announcement-access">
+      <label for="admin-token">Administrator token</label>
+      <input id="admin-token" type="password" autocomplete="current-password">
+      <button class="btn btn-primary" id="unlock-admin" type="button">Unlock</button>
+      <p class="announcement-status" id="access-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="announcement-workspace" id="announcement-workspace" hidden>
+      <form id="announcement-form" class="announcement-form">
+        <div class="announcement-fields">
+          <label for="announcement-title">Announcement title</label>
+          <input id="announcement-title" name="title" required maxlength="160">
+
+          <label for="announcement-category">Announcement category</label>
+          <select id="announcement-category" name="category" required>
+            <option value="">Choose a category</option>
+            <option>New Events</option>
+            <option>Community Programs</option>
+            <option>Fundraising Updates</option>
+            <option>Volunteer Opportunities</option>
+            <option>Important Announcements</option>
+          </select>
+
+          <label for="announcement-audience">Recipient audience</label>
+          <select id="announcement-audience" name="audience" required>
+            <option value="all">All confirmed subscribers</option>
+            <option value="newEvents">Upcoming Events subscribers</option>
+            <option value="communityPrograms">General Updates subscribers</option>
+            <option value="fundraisingUpdates">General Updates subscribers</option>
+            <option value="volunteerOpportunities">General Updates subscribers</option>
+            <option value="importantAnnouncements">All confirmed subscribers</option>
+          </select>
+
+          <p class="recipient-count" id="recipient-count">Checking recipient count…</p>
+
+          <label for="announcement-subject">Email subject</label>
+          <input id="announcement-subject" name="subject" required maxlength="200">
+
+          <label for="announcement-preview">Preview text</label>
+          <textarea id="announcement-preview" name="previewText" maxlength="300" rows="2"></textarea>
+
+          <label for="announcement-heading">Main heading</label>
+          <input id="announcement-heading" name="heading" required maxlength="160">
+
+          <label for="announcement-message">Announcement message</label>
+          <textarea id="announcement-message" name="message" required maxlength="10000" rows="8"></textarea>
+
+          <div class="announcement-field-grid">
+            <div>
+              <label for="announcement-date">Event date</label>
+              <input id="announcement-date" name="eventDate" type="date">
+            </div>
+            <div>
+              <label for="announcement-time">Event time</label>
+              <input id="announcement-time" name="eventTime" maxlength="100" placeholder="12:00 PM Eastern">
+            </div>
+          </div>
+
+          <label for="announcement-image">Featured image URL</label>
+          <input id="announcement-image" name="featuredImageUrl" type="url" maxlength="2000" placeholder="https://banatalummah.com/assets/images/events/example.jpg">
+
+          <div class="announcement-field-grid">
+            <div>
+              <label for="announcement-button">Button text</label>
+              <input id="announcement-button" name="buttonText" maxlength="80">
+            </div>
+            <div>
+              <label for="announcement-url">Destination URL</label>
+              <input id="announcement-url" name="destinationUrl" type="url" maxlength="2000" placeholder="https://banatalummah.com/events.html">
+            </div>
+          </div>
+
+          <label for="announcement-closing">Optional closing message</label>
+          <textarea id="announcement-closing" name="closingMessage" maxlength="1000" rows="3"></textarea>
+        </div>
+
+        <aside class="announcement-preview" aria-label="Email preview">
+          <p class="eyebrow">Preview</p>
+          <div id="announcement-preview-card">
+            <p class="preview-category" id="preview-category">Category</p>
+            <h2 id="preview-heading">Announcement heading</h2>
+            <p id="preview-message">Announcement message</p>
+            <p id="preview-date" hidden></p>
+            <a id="preview-button" href="#" hidden>Learn more</a>
+          </div>
+          <div class="test-email-row">
+            <label for="test-email">Send test email to</label>
+            <input id="test-email" type="email" autocomplete="email">
+          </div>
+        </aside>
+
+        <div class="announcement-actions">
+          <button class="btn btn-outline" id="save-draft" type="button">Save Draft</button>
+          <button class="btn btn-outline" id="preview-email" type="button">Preview Email</button>
+          <button class="btn btn-outline" id="send-test" type="button">Send Test Email to Me</button>
+          <button class="btn btn-primary" id="send-announcement" type="button">Send Announcement to Subscribers</button>
+        </div>
+      </form>
+      <p class="announcement-status" id="announcement-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+</body>
+</html>

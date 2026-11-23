@@ -147,6 +147,116 @@ function findEvent(eventId) {
   return EVENTS.find(event => event.id === eventId);
 }
 
+const ANNOUNCEMENT_CATEGORIES = new Set([
+  "New Events",
+  "Community Programs",
+  "Fundraising Updates",
+  "Volunteer Opportunities",
+  "Important Announcements"
+]);
+
+const ANNOUNCEMENT_AUDIENCES = new Set([
+  "all",
+  "newEvents",
+  "communityPrograms",
+  "fundraisingUpdates",
+  "volunteerOpportunities",
+  "importantAnnouncements"
+]);
+
+function getAnnouncementAudienceFilter(audience) {
+  if (audience === "newEvents") {
+    return "AND wants_upcoming_events = true";
+  }
+  if (
+    audience === "communityPrograms" ||
+    audience === "fundraisingUpdates" ||
+    audience === "volunteerOpportunities"
+  ) {
+    return "AND wants_general_updates = true";
+  }
+  return "";
+}
+
+function parseAnnouncement(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { error: "Complete the announcement fields." };
+  }
+
+  const stringFields = [
+    "title",
+    "category",
+    "subject",
+    "previewText",
+    "heading",
+    "message",
+    "eventDate",
+    "eventTime",
+    "featuredImageUrl",
+    "buttonText",
+    "destinationUrl",
+    "closingMessage",
+    "audience"
+  ];
+  if (stringFields.some(field => body[field] !== undefined && typeof body[field] !== "string")) {
+    return { error: "Announcement fields contain invalid values." };
+  }
+
+  const value = {
+    title: typeof body.title === "string" ? body.title.trim().slice(0, 160) : "",
+    category: typeof body.category === "string" ? body.category.trim() : "",
+    subject: typeof body.subject === "string" ? body.subject.trim().slice(0, 200) : "",
+    previewText: typeof body.previewText === "string" ? body.previewText.trim().slice(0, 300) : "",
+    heading: typeof body.heading === "string" ? body.heading.trim().slice(0, 160) : "",
+    message: typeof body.message === "string" ? body.message.trim().slice(0, 10000) : "",
+    eventDate: typeof body.eventDate === "string" ? body.eventDate.trim() : "",
+    eventTime: typeof body.eventTime === "string" ? body.eventTime.trim().slice(0, 100) : "",
+    featuredImageUrl: typeof body.featuredImageUrl === "string"
+      ? body.featuredImageUrl.trim().slice(0, 2000)
+      : "",
+    buttonText: typeof body.buttonText === "string" ? body.buttonText.trim().slice(0, 80) : "",
+    destinationUrl: typeof body.destinationUrl === "string"
+      ? body.destinationUrl.trim().slice(0, 2000)
+      : "",
+    closingMessage: typeof body.closingMessage === "string"
+      ? body.closingMessage.trim().slice(0, 1000)
+      : "",
+    audience: typeof body.audience === "string" ? body.audience.trim() : "all"
+  };
+
+  if (
+    !value.title ||
+    !ANNOUNCEMENT_CATEGORIES.has(value.category) ||
+    !value.subject ||
+    !value.heading ||
+    !value.message ||
+    !ANNOUNCEMENT_AUDIENCES.has(value.audience)
+  ) {
+    return { error: "Enter a title, category, subject, heading, message, and audience." };
+  }
+
+  if (
+    value.eventDate &&
+    !/^\d{4}-\d{2}-\d{2}$/.test(value.eventDate)
+  ) {
+    return { error: "Enter a valid event date." };
+  }
+
+  for (const urlField of ["featuredImageUrl", "destinationUrl"]) {
+    if (!value[urlField]) continue;
+    try {
+      const url = new URL(value[urlField]);
+      if (!["http:", "https:"].includes(url.protocol)) {
+        return { error: "Featured images and button destinations must use http or https." };
+      }
+    } catch {
+      return { error: "Featured images and button destinations must be valid URLs." };
+    }
+  }
+
+  return { value };
+}
+
 function requireDatabase(req, res, next) {
   if (!pool || !databaseReady) {
     return res.status(503).json({
@@ -396,6 +506,67 @@ async function sendNewsletterWelcomeEmail(email, unsubscribeToken) {
   });
 }
 
+async function sendNewsletterAnnouncement(email, firstName, announcement, unsubscribeToken) {
+  const unsubscribeURL = new URL("newsletter-unsubscribe.html", frontend);
+  const logoURL = new URL("assets/icons/logo.png", frontend);
+  unsubscribeURL.hash = new URLSearchParams({
+    token: unsubscribeToken
+  }).toString();
+
+  const greeting = firstName ? `As-salāmu ʿalaykum, ${firstName}.` : "As-salāmu ʿalaykum.";
+  const dateLine = announcement.eventDate
+    ? `${announcement.eventDate}${announcement.eventTime ? ` at ${announcement.eventTime}` : ""}`
+    : "";
+  const imageHTML = announcement.featuredImageUrl
+    ? `<img src="${escapeHTML(announcement.featuredImageUrl)}" alt="${escapeHTML(announcement.heading)}" width="560" style="border-radius:8px;display:block;height:auto;margin:20px 0;max-width:100%">`
+    : "";
+  const buttonHTML = announcement.destinationUrl && announcement.buttonText
+    ? `<p style="margin:28px 0"><a href="${escapeHTML(announcement.destinationUrl)}" style="background:#315846;border-radius:5px;color:#ffffff;display:inline-block;padding:13px 20px;text-decoration:none">${escapeHTML(announcement.buttonText)}</a></p>`
+    : "";
+  const unsubscribeLink = escapeHTML(unsubscribeURL.href);
+  const logoLink = escapeHTML(logoURL.href);
+
+  const text = [
+    greeting,
+    "",
+    announcement.heading,
+    "",
+    announcement.message,
+    "",
+    dateLine,
+    "",
+    announcement.destinationUrl && announcement.buttonText
+      ? `${announcement.buttonText}: ${announcement.destinationUrl}`
+      : "",
+    announcement.closingMessage,
+    "",
+    `Unsubscribe: ${unsubscribeURL.href}`
+  ].filter((line, index, lines) => line !== "" || lines[index - 1] !== "").join("\n");
+
+  const html =
+    `${announcement.previewText ? `<div style="display:none;max-height:0;overflow:hidden">${escapeHTML(announcement.previewText)}</div>` : ""}` +
+    `<div style="background:#fff8fa;color:#293d32;font-family:Arial,sans-serif;padding:24px">` +
+    `<div style="background:#ffffff;border:1px solid #efdfe5;border-radius:10px;margin:0 auto;max-width:560px;padding:28px">` +
+    `<p style="text-align:center"><img src="${logoLink}" alt="Banat Al-Ummah" width="112" style="height:auto;max-width:112px"></p>` +
+    `<p style="color:#b06f86;font-size:12px;font-weight:bold;letter-spacing:1.8px;text-transform:uppercase;text-align:center">${escapeHTML(announcement.category)}</p>` +
+    `<p style="color:#6b756d">${escapeHTML(greeting)}</p>` +
+    `<h1 style="color:#315846;font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.25;margin:12px 0">${escapeHTML(announcement.heading)}</h1>` +
+    `${imageHTML}` +
+    `${escapeHTML(announcement.message).replace(/\n/g, "<br>")}` +
+    `${dateLine ? `<p style="border-left:3px solid #d8a4b5;margin:20px 0;padding:10px 14px"><strong>When:</strong> ${escapeHTML(dateLine)}</p>` : ""}` +
+    `${buttonHTML}` +
+    `${announcement.closingMessage ? `<p>${escapeHTML(announcement.closingMessage).replace(/\n/g, "<br>")}</p>` : ""}` +
+    `<p style="border-top:1px solid #e7dfd1;color:#6b756d;font-size:12px;margin-top:28px;padding-top:16px;text-align:center">Seeking beneficial knowledge. Growing in community.<br><a href="${unsubscribeLink}" style="color:#315846">Unsubscribe</a></p>` +
+    `</div></div>`;
+
+  return sendNewsletterEmail({
+    to: email,
+    subject: announcement.subject,
+    html,
+    text
+  });
+}
+
 async function recordNewsletterDelivery(
   subscriberId,
   templateKey,
@@ -458,7 +629,8 @@ async function initializeDatabase() {
     "001_event_registration.sql",
     "002_newsletter_subscribers.sql",
     "003_newsletter_welcome_delivery.sql",
-    "004_event_participations.sql"
+    "004_event_participations.sql",
+    "005_newsletter_announcements.sql"
   ]) {
     const migration = fs.readFileSync(
       path.join(__dirname, "migrations", migrationName),
@@ -1836,6 +2008,335 @@ app.get(
         error: "Event interest records are temporarily unavailable."
       });
     }
+  }
+);
+
+app.get(
+  "/api/admin/newsletter-announcement-recipient-count",
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const audience = req.query.audience || "all";
+    if (!ANNOUNCEMENT_AUDIENCES.has(audience)) {
+      return res.status(400).json({ error: "Invalid announcement audience." });
+    }
+    try {
+      const result = await pool.query(
+        `SELECT count(*)::integer AS count
+           FROM newsletter_subscribers
+          WHERE status = 'confirmed'
+          ${getAnnouncementAudienceFilter(audience)}`
+      );
+      return res.json({ audience, count: result.rows[0].count });
+    } catch (error) {
+      console.error("Announcement recipient count failed:", error.code || "database error");
+      return res.status(503).json({ error: "Recipient count is temporarily unavailable." });
+    }
+  }
+);
+
+app.get(
+  "/api/admin/newsletter-announcement-drafts",
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, title, category, subject, preview_text, heading, message,
+                event_date, event_time, featured_image_url, button_text,
+                destination_url, closing_message, audience, status,
+                recipient_count, sent_count, failed_count, created_at, sent_at, updated_at
+           FROM newsletter_announcements
+          ORDER BY updated_at DESC
+          LIMIT 100`
+      );
+      return res.json({ drafts: result.rows });
+    } catch (error) {
+      console.error("Announcement drafts lookup failed:", error.code || "database error");
+      return res.status(503).json({ error: "Announcements are temporarily unavailable." });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/newsletter-announcement-drafts",
+  express.json({ limit: "20kb" }),
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const parsed = parseAnnouncement(req.body);
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+    const value = parsed.value;
+    const idempotencyKey = typeof req.body.idempotencyKey === "string"
+      ? req.body.idempotencyKey.trim()
+      : "";
+    if (!/^.{36,128}$/.test(idempotencyKey)) {
+      return res.status(400).json({ error: "A valid draft id is required." });
+    }
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO newsletter_announcements
+           (title, category, subject, preview_text, heading, message, event_date,
+            event_time, featured_image_url, button_text, destination_url,
+            closing_message, audience, status, idempotency_key)
+         VALUES ($1, $2, $3, $4, $5, $6, NULLIF($7, '')::date,
+                 NULLIF($8, ''), NULLIF($9, ''), NULLIF($10, ''),
+                 NULLIF($11, ''), NULLIF($12, ''), $13, 'draft', $14)
+         ON CONFLICT (idempotency_key) DO UPDATE SET
+           title = EXCLUDED.title,
+           category = EXCLUDED.category,
+           subject = EXCLUDED.subject,
+           preview_text = EXCLUDED.preview_text,
+           heading = EXCLUDED.heading,
+           message = EXCLUDED.message,
+           event_date = EXCLUDED.event_date,
+           event_time = EXCLUDED.event_time,
+           featured_image_url = EXCLUDED.featured_image_url,
+           button_text = EXCLUDED.button_text,
+           destination_url = EXCLUDED.destination_url,
+           closing_message = EXCLUDED.closing_message,
+           audience = EXCLUDED.audience,
+           updated_at = now()
+         WHERE newsletter_announcements.status = 'draft'
+         RETURNING id, status, updated_at`,
+        [
+          value.title,
+          value.category,
+          value.subject,
+          value.previewText,
+          value.heading,
+          value.message,
+          value.eventDate,
+          value.eventTime,
+          value.featuredImageUrl,
+          value.buttonText,
+          value.destinationUrl,
+          value.closingMessage,
+          value.audience,
+          idempotencyKey
+        ]
+      );
+      if (!result.rows[0]) {
+        return res.status(409).json({ error: "This announcement has already been sent." });
+      }
+      return res.json({ draft: result.rows[0] });
+    } catch (error) {
+      console.error("Announcement draft could not be saved:", error.code || "database error");
+      return res.status(503).json({ error: "The draft could not be saved." });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/newsletter-announcement-test",
+  express.json({ limit: "20kb" }),
+  ADMIN_REQUEST_LIMIT,
+  requireAdmin,
+  async (req, res) => {
+    const testEmail = typeof req.body?.testEmail === "string"
+      ? req.body.testEmail.trim().toLowerCase()
+      : "";
+    const parsed = parseAnnouncement(req.body);
+    if (!isValidEmail(testEmail)) {
+      return res.status(400).json({ error: "Enter a valid test email address." });
+    }
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+    try {
+      const testToken = crypto.randomBytes(32).toString("hex");
+      await sendNewsletterAnnouncement(
+        testEmail,
+        "",
+        parsed.value,
+        testToken
+      );
+      return res.json({ message: "Test email sent." });
+    } catch (error) {
+      console.error("Announcement test email failed:", error.code || "provider error");
+      return res.status(502).json({ error: "The test email could not be sent." });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/newsletter-announcements/send",
+  express.json({ limit: "20kb" }),
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const parsed = parseAnnouncement(req.body);
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+    if (req.body.confirm !== true) {
+      return res.status(400).json({ error: "Final confirmation is required." });
+    }
+    const idempotencyKey = typeof req.body.idempotencyKey === "string"
+      ? req.body.idempotencyKey.trim()
+      : "";
+    if (!/^.{36,128}$/.test(idempotencyKey)) {
+      return res.status(400).json({ error: "A valid send id is required." });
+    }
+
+    const value = parsed.value;
+    let announcement;
+    try {
+      const existing = await pool.query(
+        `SELECT id, status, recipient_count, sent_count, failed_count
+           FROM newsletter_announcements
+          WHERE idempotency_key = $1`,
+        [idempotencyKey]
+      );
+      if (existing.rows[0]?.status === "sent") {
+        return res.json({
+          alreadySent: true,
+          announcement: existing.rows[0]
+        });
+      }
+      if (existing.rows[0]?.status === "sending") {
+        return res.status(409).json({ error: "This announcement is currently sending." });
+      }
+
+      const created = await pool.query(
+        `INSERT INTO newsletter_announcements
+           (title, category, subject, preview_text, heading, message, event_date,
+            event_time, featured_image_url, button_text, destination_url,
+            closing_message, audience, status, idempotency_key)
+         VALUES ($1, $2, $3, $4, $5, $6, NULLIF($7, '')::date,
+                 NULLIF($8, ''), NULLIF($9, ''), NULLIF($10, ''),
+                 NULLIF($11, ''), NULLIF($12, ''), $13, 'sending', $14)
+         ON CONFLICT (idempotency_key) DO UPDATE SET
+           status = 'sending',
+           updated_at = now()
+         WHERE newsletter_announcements.status = 'draft'
+         RETURNING id`,
+        [
+          value.title,
+          value.category,
+          value.subject,
+          value.previewText,
+          value.heading,
+          value.message,
+          value.eventDate,
+          value.eventTime,
+          value.featuredImageUrl,
+          value.buttonText,
+          value.destinationUrl,
+          value.closingMessage,
+          value.audience,
+          idempotencyKey
+        ]
+      );
+      if (!created.rows[0]) {
+        return res.status(409).json({ error: "This send could not be started safely." });
+      }
+      announcement = created.rows[0];
+    } catch (error) {
+      console.error("Announcement send record could not be created:", error.code || "database error");
+      return res.status(503).json({ error: "The announcement could not be started." });
+    }
+
+    let recipients;
+    try {
+      recipients = await pool.query(
+        `SELECT id, email, first_name
+           FROM newsletter_subscribers
+          WHERE status = 'confirmed'
+          ${getAnnouncementAudienceFilter(value.audience)}
+          ORDER BY id`
+      );
+    } catch (error) {
+      await pool.query(
+        `UPDATE newsletter_announcements
+            SET status = 'failed',
+                updated_at = now()
+          WHERE id = $1`,
+        [announcement.id]
+      );
+      console.error("Announcement recipient lookup failed:", error.code || "database error");
+      return res.status(503).json({ error: "Recipients could not be loaded. The announcement was not sent." });
+    }
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (const subscriber of recipients.rows) {
+      const unsubscribeToken = crypto.randomBytes(32).toString("hex");
+      const unsubscribeHash = hashNewsletterToken(unsubscribeToken);
+      try {
+        await pool.query(
+          `INSERT INTO newsletter_unsubscribe_tokens (token_hash, subscriber_id)
+           VALUES ($1, $2)
+           ON CONFLICT (token_hash) DO NOTHING`,
+          [unsubscribeHash, subscriber.id]
+        );
+        const delivery = await sendNewsletterAnnouncement(
+          subscriber.email,
+          subscriber.first_name,
+          value,
+          unsubscribeToken
+        );
+        await pool.query(
+          `INSERT INTO newsletter_announcement_sends
+             (announcement_id, subscriber_id, status, provider_message_id)
+           VALUES ($1, $2, 'sent', $3)
+           ON CONFLICT (announcement_id, subscriber_id) DO NOTHING`,
+          [announcement.id, subscriber.id, delivery.providerMessageId]
+        );
+        await recordNewsletterDelivery(
+          subscriber.id,
+          "marketing",
+          "sent",
+          delivery.providerMessageId
+        );
+        sentCount += 1;
+      } catch (error) {
+        const errorCode = typeof error.code === "string"
+          ? error.code
+          : "provider_unavailable";
+        await pool.query(
+          `INSERT INTO newsletter_announcement_sends
+             (announcement_id, subscriber_id, status, error_code)
+           VALUES ($1, $2, 'failed', $3)
+           ON CONFLICT (announcement_id, subscriber_id) DO NOTHING`,
+          [announcement.id, subscriber.id, errorCode]
+        );
+        await recordNewsletterDelivery(
+          subscriber.id,
+          "marketing",
+          "failed",
+          null,
+          errorCode
+        );
+        failedCount += 1;
+      }
+    }
+
+    await pool.query(
+      `UPDATE newsletter_announcements
+          SET status = 'sent',
+              recipient_count = $2,
+              sent_count = $3,
+              failed_count = $4,
+              sent_at = now(),
+              updated_at = now()
+        WHERE id = $1`,
+      [announcement.id, recipients.rowCount, sentCount, failedCount]
+    );
+
+    return res.json({
+      announcementId: announcement.id,
+      recipientCount: recipients.rowCount,
+      sentCount,
+      failedCount
+    });
   }
 );
 

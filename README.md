@@ -200,6 +200,26 @@ Organizer-only aggregate counts and topic segments are available at
 subscriber records. Delivery attempts are stored separately from event
 registration and donation confirmations.
 
+### Email announcement system
+
+The administrator announcement editor is available at
+`/admin-announcements.html`. It is not linked from public navigation and every
+announcement API requires the existing `Authorization: Bearer <EVENT_ADMIN_TOKEN>`
+header. The page asks for the token and keeps it only in the browser session;
+it never exposes it in source code or public HTML.
+
+Confirmed subscribers remain in PostgreSQL in `newsletter_subscribers`. No
+Resend Audience is created or used. Sending filters for `status = 'confirmed'`
+and only includes the preference segment chosen for the announcement. Real
+announcement emails use newly generated per-recipient unsubscribe tokens with
+the existing `/api/newsletter-subscriptions/unsubscribe` workflow.
+
+Startup applies `server/migrations/005_newsletter_announcements.sql`, which
+stores drafts, sends, recipient counts, and per-recipient delivery status.
+Announcements reuse `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `FRONTEND_URL`;
+no new Resend account or API key is required. The existing newsletter
+confirmation, welcome, and welcome-delivery workflows remain unchanged.
+
 The Arabic Classes registration button opens the Google Form; newsletter signup
 does not enroll students. The course payment link remains the existing Stripe
 Payment Link, and the donation system remains separate.
