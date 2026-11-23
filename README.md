@@ -207,6 +207,16 @@ Payment Link, and the donation system remains separate.
 Copy `server/.env.example` as a local reference; do not commit a real `.env`.
 The website does not store card details; Stripe handles payment.
 
+The Community Giveaway & Donation Drive participation form reuses the existing
+`RESEND_API_KEY` and `RESEND_FROM_EMAIL` values for registration notifications.
+Do not create or add a second Resend key. Copy the existing backend
+`RESEND_API_KEY` and `RESEND_FROM_EMAIL` values into the Render service if they
+are not already configured there. Set `EVENT_NOTIFICATION_EMAIL` to
+`banatalum@gmail.com` on Render; the code also defaults to that address.
+Successful PostgreSQL submissions trigger a separate organizer notification
+email without changing the existing event-interest or newsletter subscription
+confirmation workflows.
+
 Point the Stripe webhook at
 `https://banatalummah.onrender.com/api/stripe-webhook`. Include the existing
 donation event types and these Checkout/refund/dispute events:
@@ -222,6 +232,8 @@ Organizer requests use the `Authorization: Bearer <EVENT_ADMIN_TOKEN>` header:
   `event_id`, `status`, and `limit` (up to 500).
 - `GET /api/admin/event-interests` lists only confirmed, subscribed interest
   requests; optional filters: `event_id` and `limit`.
+- `GET /api/admin/event-participations` lists giveaway or donation participation
+  submissions; optional filters: `event_id` and `limit`.
 - `POST /api/admin/event-sessions` configures up to 50 class dates using
   `{"eventId":"weekly-arabic-classes","sessions":[{"sessionDate":"YYYY-MM-DD"}]}`.
   The server uses the configured per-session capacity, locks concurrent

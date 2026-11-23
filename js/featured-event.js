@@ -14,7 +14,8 @@
     return;
   }
 
-  const event = events.find(item => item.kind === "featured");
+  const event = events.find(item => item.featured === true)
+    || events.find(item => item.kind === "featured");
   if (!event || !event.id || !event.title) {
     console.error("No valid featured event is available.");
     return;
@@ -89,7 +90,9 @@
   const exploreLink = createElement("a", "featured-event-button featured-event-button-primary");
   exploreLink.href = `event.html?event=${encodeURIComponent(event.id)}`;
   exploreLink.append(
-    document.createTextNode("Explore Class "),
+    document.createTextNode(event.kind === "featured" && event.id === "weekly-arabic-classes"
+      ? "Explore Class "
+      : "Explore Event "),
     createElement("span", "", "→")
   );
   exploreLink.lastElementChild.setAttribute("aria-hidden", "true");

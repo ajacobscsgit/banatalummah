@@ -3,6 +3,71 @@
 (() => {
   const events = [
     {
+      id: "community-giveaway-donation-drive",
+      title: "Community Giveaway & Donation Drive",
+      subtitle: "Give freely. Serve together.",
+      kind: "featured",
+      category: "Community",
+      featured: true,
+      summary:
+        "Join Banāt al-Ummah for a community-centered giveaway and donation drive supporting individuals and families with food, clothing, shoes, toiletries, and other essentials.",
+      heroDescription:
+        "Banāt al-Ummah is bringing the community together through generosity, service, and shared care. We are collecting useful donations and organizing a giveaway to help individuals and families in need.",
+      scheduleLabel: "Sunday, December 13, 2026 | 12:00 PM",
+      cardFacts: [
+        "Sunday, December 13, 2026",
+        "12:00 PM",
+        "Donation deadline: December 10"
+      ],
+      coverImage: "assets/images/events/BAU-giveaway.png",
+      coverAlt: "Community Giveaway and Donation Drive",
+      cardImage: "assets/images/events/BAU-giveaway.png",
+      cardAlt: "Community Giveaway and Donation Drive",
+      coverTheme: "rose",
+      statusLabel: "Community Registration Open",
+      heroBadge: "GIVEAWAY & DONATION DRIVE",
+      details: [
+        ["Event date", "Sunday, December 13, 2026"],
+        ["Time", "12:00 PM (Noon)"],
+        ["Donation deadline", "Thursday, December 10, 2026"],
+        ["Drop-Off Location", "Drop-Off Location Coming Soon"]
+      ],
+      donationDeadline: "2026-12-10",
+      donationDeadlineLabel: "December 10, 2026",
+      dropoffLocation: "Drop-Off Location Coming Soon",
+      dropoffSchedule: [
+        "Tuesday at 12:00 PM",
+        "Tuesday at 4:00 PM",
+        "Thursday at 12:00 PM",
+        "Thursday at 4:00 PM"
+      ],
+      acceptedItems: [
+        ["Clothing", "Clean, usable clothing for community members of different ages."],
+        ["Shoes", "Usable shoes in good condition, with limited wear."],
+        ["Toiletries", "Personal hygiene products; unopened whenever possible."],
+        ["Hot foods", "Safe, freshly prepared foods suitable for distribution."],
+        ["Cold foods", "Properly stored cold foods suitable for distribution."],
+        ["Perishable food", "Fresh items kept safely and delivered before the deadline."],
+        ["Bags", "Clean bags that can be used to organize and distribute donations."],
+        ["Other essentials", "Any additional clean, usable items that may benefit individuals and families."]
+      ],
+      donationRequirements: [
+        "Items must be clean and in good, usable condition.",
+        "Do not donate items with holes, excessive damage, stains, or unusable wear.",
+        "Food must be safe, fresh, properly stored, and suitable for distribution.",
+        "Toiletries should be unopened whenever possible.",
+        "Donate items in a condition that someone would feel comfortable receiving.",
+        "Damaged, dirty, spoiled, expired, or unusable donations cannot be accepted."
+      ],
+      participationFormEnabled: true,
+      registrationEnabled: false,
+      donationUrl: "donate.html",
+      donationLabel: "Donate Financially",
+      footerDescription:
+        "Monetary donations are separate from item donations and volunteering. Give financially through the existing Banāt al-Ummah donation page.",
+      mediaVideoSources: []
+    },
+    {
       id: "weekly-arabic-classes",
       title: "Egyptian Arabic Classes",
       subtitle: "Level 1 | Egyptian Arabic Classes",

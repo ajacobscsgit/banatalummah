@@ -83,6 +83,8 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 const DATABASE_URL = process.env.DATABASE_URL || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "";
+const EVENT_NOTIFICATION_EMAIL =
+  process.env.EVENT_NOTIFICATION_EMAIL || "banatalum@gmail.com";
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 const EVENT_ADMIN_TOKEN = process.env.EVENT_ADMIN_TOKEN || "";
 const EVENT_REGISTRATION_SETTING =
@@ -255,6 +257,65 @@ async function sendEventInterestEmail(email, event, token) {
   });
 }
 
+async function sendEventParticipationNotification({
+  event,
+  fullName,
+  email,
+  phone,
+  participation,
+  items,
+  dropoffDay,
+  dropoffTime,
+  quantity,
+  notes
+}) {
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    console.error("Event participation notification email is not configured.");
+    return;
+  }
+
+  const itemList = items.length ? items.join(", ") : "Not provided";
+  const quantityLabel = quantity === null ? "Not provided" : String(quantity);
+  const notesLabel = notes || "None";
+  const dropoffDayLabel = dropoffDay || "Not selected";
+  const dropoffTimeLabel = dropoffTime || "Not selected";
+
+  await sendResendEmail({
+    to: EVENT_NOTIFICATION_EMAIL,
+    subject: `New registration: ${event.title}`,
+    text:
+      `A new participation registration was submitted for ${event.title}.\n\n` +
+      `Full name: ${fullName}\n` +
+      `Email: ${email}\n` +
+      `Phone: ${phone || "Not provided"}\n` +
+      `Participation: ${participation}\n` +
+      `Items: ${itemList}\n` +
+      `Preferred drop-off day: ${dropoffDayLabel}\n` +
+      `Preferred drop-off time: ${dropoffTimeLabel}\n` +
+      `Quantity: ${quantityLabel}\n` +
+      `Notes: ${notesLabel}\n`,
+    html:
+      `<div style="background:#fbf8f1;color:#293d32;font-family:Arial,sans-serif;padding:32px">` +
+      `<div style="margin:0 auto;max-width:560px">` +
+      `<p style="color:#967b4b;font-size:12px;letter-spacing:2px;text-transform:uppercase">Banāt al-Ummah</p>` +
+      `<h1 style="font-family:Georgia,serif;font-size:24px;font-weight:normal">New event registration</h1>` +
+      `<p><strong>Event:</strong> ${escapeHTML(event.title)}</p>` +
+      `<table style="width:100%;border-collapse:collapse">` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Full name</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(fullName)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Email</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(email)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Phone</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(phone || "Not provided")}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Participation</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(participation)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Items</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(itemList)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Drop-off day</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(dropoffDayLabel)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Drop-off time</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(dropoffTimeLabel)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Quantity</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(quantityLabel)}</td></tr>` +
+      `<tr><td style="padding:8px;border-bottom:1px solid #e7dfd1"><strong>Notes</strong></td><td style="padding:8px;border-bottom:1px solid #e7dfd1">${escapeHTML(notesLabel)}</td></tr>` +
+      `</table>` +
+      `<p style="border-top:1px solid #e7dfd1;color:#6b756d;font-size:12px;margin-top:28px;padding-top:16px">Banāt al-Ummah Event Registration</p>` +
+      `</div></div>`
+  });
+}
+
 async function sendNewsletterConfirmationEmail(email, firstName, token) {
   const confirmationURL = new URL("newsletter-confirm.html", frontend);
   const unsubscribeURL = new URL("newsletter-unsubscribe.html", frontend);
@@ -396,7 +457,8 @@ async function initializeDatabase() {
   for (const migrationName of [
     "001_event_registration.sql",
     "002_newsletter_subscribers.sql",
-    "003_newsletter_welcome_delivery.sql"
+    "003_newsletter_welcome_delivery.sql",
+    "004_event_participations.sql"
   ]) {
     const migration = fs.readFileSync(
       path.join(__dirname, "migrations", migrationName),
@@ -1111,6 +1173,104 @@ app.post(
 );
 
 app.post(
+  "/api/event-participations",
+  express.json({ limit: "10kb" }),
+  EVENT_INTEREST_LIMIT,
+  requireDatabase,
+  async (req, res) => {
+    const body = req.body || {};
+    const event = findEvent(body.eventId);
+    if (!event || event.id !== "community-giveaway-donation-drive") {
+      return res.status(400).json({ error: "Choose a valid event." });
+    }
+    if (body.website) {
+      return res.status(400).json({ error: "Your request could not be processed." });
+    }
+
+    const fullName = typeof body.fullName === "string" ? body.fullName.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+    const participation = typeof body.participation === "string"
+      ? body.participation
+      : "";
+    const items = Array.isArray(body.items)
+      ? body.items.filter(item => typeof item === "string").slice(0, 12)
+      : [];
+    const dropoffDay = ["Tuesday", "Thursday"].includes(body.dropoffDay)
+      ? body.dropoffDay
+      : null;
+    const dropoffTime = ["12:00 PM", "4:00 PM"].includes(body.dropoffTime)
+      ? body.dropoffTime
+      : null;
+    const quantity = body.quantity === "" || body.quantity == null
+      ? null
+      : Number.parseInt(body.quantity, 10);
+    const notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 1000) : "";
+
+    if (
+      fullName.length < 2 ||
+      fullName.length > 120 ||
+      !isValidEmail(email) ||
+      !["Donate items", "Volunteer", "Both"].includes(participation) ||
+      body.consent !== true ||
+      (quantity !== null && (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 100000))
+    ) {
+      return res.status(400).json({
+        error: "Complete the required fields and agree to event coordination."
+      });
+    }
+
+    try {
+      await pool.query(
+        `INSERT INTO event_participations
+           (event_id, full_name, email, phone, participation, donated_items,
+            dropoff_day, dropoff_time, quantity, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          event.id,
+          fullName,
+          email,
+          phone || null,
+          participation,
+          items,
+          dropoffDay,
+          dropoffTime,
+          quantity,
+          notes || null
+        ]
+      );
+      try {
+        await sendEventParticipationNotification({
+          event,
+          fullName,
+          email,
+          phone,
+          participation,
+          items,
+          dropoffDay,
+          dropoffTime,
+          quantity,
+          notes
+        });
+      } catch (notificationError) {
+        console.error(
+          "Event participation notification could not be delivered:",
+          notificationError.code || "email error"
+        );
+      }
+      return res.status(201).json({
+        message: "Thank you! Your participation details have been submitted."
+      });
+    } catch (error) {
+      console.error("Event participation could not be saved:", error.code || "database error");
+      return res.status(503).json({
+        error: "Your participation could not be saved. Please try again later."
+      });
+    }
+  }
+);
+
+app.post(
   "/api/event-interests",
   express.json({ limit: "10kb" }),
   EVENT_INTEREST_LIMIT,
@@ -1603,6 +1763,44 @@ async (req, res) => {
     });
   }
 });
+
+app.get(
+  "/api/admin/event-participations",
+  ADMIN_REQUEST_LIMIT,
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const eventId = req.query.event_id;
+    const limit = Number(req.query.limit || 100);
+    if (
+      (eventId && !findEvent(eventId)) ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 500
+    ) {
+      return res.status(400).json({ error: "Invalid participation-list filters." });
+    }
+
+    try {
+      const result = await pool.query(
+        `SELECT event_id, full_name, email, phone, participation,
+                donated_items, dropoff_day, dropoff_time, quantity, notes,
+                consented_at, created_at
+           FROM event_participations
+          WHERE ($1::text IS NULL OR event_id = $1)
+          ORDER BY created_at DESC
+          LIMIT $2`,
+        [eventId || null, limit]
+      );
+      return res.json({ participations: result.rows });
+    } catch (error) {
+      console.error("Event participation lookup failed:", error.code || "database error");
+      return res.status(503).json({
+        error: "Event participation records are temporarily unavailable."
+      });
+    }
+  }
+);
 
 app.get(
   "/api/admin/event-interests",

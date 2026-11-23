@@ -426,7 +426,8 @@
     const media = window.BANAT_EVENT_PAGE_MEDIA;
     if (!media) return;
 
-    const featuredEvent = events.find(event => event.id === ARABIC_CLASSES_ID);
+    const featuredEvent = events.find(event => event.featured === true)
+      || events.find(event => event.kind === "featured");
     const featuredImage = document.getElementById("featured-event-image");
     if (featuredEvent?.coverImage && featuredImage) {
       featuredImage.alt = featuredEvent.coverAlt || "";
@@ -701,6 +702,328 @@
     return section;
   }
 
+  function createDonationInfoSection(event) {
+    if (!event.acceptedItems || !event.acceptedItems.length) return null;
+
+    const section = createElement("section", "event-detail-section event-donation-info");
+    section.appendChild(
+      createSectionHeading("What We Are Accepting", "Needed donations")
+    );
+    const grid = createElement("div", "event-donation-grid");
+    event.acceptedItems.forEach(([title, description]) => {
+      const item = createElement("article", "event-donation-item");
+      item.append(
+        createElement("h3", "", title),
+        createElement("p", "", description)
+      );
+      grid.appendChild(item);
+    });
+    section.appendChild(grid);
+    return section;
+  }
+
+  function createDonationRequirementsSection(event) {
+    if (!event.donationRequirements || !event.donationRequirements.length) return null;
+
+    const section = createElement("section", "event-detail-section event-donation-requirements");
+    section.appendChild(
+      createSectionHeading("Donation Condition Requirements", "Please give with care")
+    );
+    const list = createElement("ul", "event-donation-list");
+    event.donationRequirements.forEach(requirement => {
+      list.appendChild(createElement("li", "", requirement));
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  function createDropoffSection(event) {
+    if (!event.dropoffSchedule || !event.dropoffSchedule.length) return null;
+
+    const section = createElement("section", "event-detail-section event-dropoff");
+    section.appendChild(
+      createSectionHeading("Donation Drop-Off", "Physical donations")
+    );
+    section.appendChild(createElement(
+      "p",
+      "event-dropoff-location",
+      event.dropoffLocation || "Drop-Off Location Coming Soon"
+    ));
+    const schedule = createElement("div", "event-dropoff-schedule");
+    event.dropoffSchedule.forEach(item => {
+      schedule.appendChild(createElement("div", "event-dropoff-time", item));
+    });
+    section.appendChild(schedule);
+    section.appendChild(createElement(
+      "p",
+      "event-dropoff-deadline",
+      `All physical donations must be received by ${event.donationDeadlineLabel || "December 10, 2026"} for sorting and preparation.`
+    ));
+    return section;
+  }
+
+  function createDonationDeadlineNotice(event) {
+    if (!event.donationDeadline) return null;
+
+    const deadline = new Date(`${event.donationDeadline}T23:59:59-05:00`);
+    const now = new Date();
+    const remainingDays = Math.ceil((deadline.getTime() - now.getTime()) / 86400000);
+    const notice = createElement("div", "event-deadline-notice");
+
+    if (remainingDays >= 0) {
+      notice.append(
+        createElement("strong", "", `${remainingDays} day${remainingDays === 1 ? "" : "s"} remaining`),
+        createElement("span", "", `Donation deadline: ${event.donationDeadlineLabel}`)
+      );
+    } else {
+      notice.append(
+        createElement("strong", "", "Donation deadline passed"),
+        createElement("span", "", `Deadline: ${event.donationDeadlineLabel}`)
+      );
+    }
+    return notice;
+  }
+
+  function createParticipationForm(event) {
+    if (!event.participationFormEnabled) return null;
+
+    const submissionEndpoint =
+      "https://script.google.com/macros/s/AKfycbxsNlJAZmSR7BM8_2OTxpXsuvWVgBI7oN0WZUFO_mLYX4fIjtqHEs9E9Tkp0qNVqfSY/exec";
+    const form = createElement("form", "event-interest-form event-participation-form");
+    form.dataset.eventParticipationForm = "";
+    form.method = "post";
+    form.action = submissionEndpoint;
+    form.enctype = "application/x-www-form-urlencoded";
+
+    const fields = [];
+    function addField(labelText, name, type = "text", required = false, options = {}) {
+      const label = createElement("label", "", labelText);
+      label.htmlFor = `participation-${name}`;
+      const input = document.createElement(type === "textarea" ? "textarea" : "input");
+      input.id = `participation-${name}`;
+      input.name = name;
+      if (type !== "textarea") input.type = type;
+      input.required = required;
+      if (options.maxLength) input.maxLength = options.maxLength;
+      if (options.min !== undefined) input.min = options.min;
+      if (options.placeholder) input.placeholder = options.placeholder;
+      fields.push(label, input);
+    }
+
+    addField("Full name", "fullName", "text", true, { maxLength: 120 });
+    addField("Email address", "email", "email", true, { maxLength: 254 });
+    addField("Phone number (optional)", "phone", "tel", false, { maxLength: 30 });
+
+    const participationLabel = createElement("label", "", "I plan to participate as");
+    const participationGroup = createElement("fieldset", "event-participation-options");
+    ["Donate items", "Volunteer", "Both"].forEach((text, index) => {
+      const option = createElement("label", "event-checkbox-option");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "participation";
+      radio.value = text;
+      radio.required = index === 0;
+      option.append(radio, createElement("span", "", text));
+      participationGroup.appendChild(option);
+    });
+
+    const itemsLabel = createElement("label", "", "Types of items I intend to donate");
+    const itemsGroup = createElement("fieldset", "event-item-options");
+    [
+      ["Clothing", "clothing"],
+      ["Shoes", "shoes"],
+      ["Toiletries", "toiletries"],
+      ["Hot food", "hotFood"],
+      ["Cold food", "coldFood"],
+      ["Perishable food", "perishableFood"],
+      ["Bags", "bags"],
+      ["Other essentials", "otherEssentials"]
+    ].forEach(([text, name]) => {
+      const option = createElement("label", "event-checkbox-option");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = name;
+      checkbox.value = "true";
+      option.append(checkbox, createElement("span", "", text));
+      itemsGroup.appendChild(option);
+    });
+
+    const dayLabel = createElement("label", "", "Preferred drop-off day");
+    const daySelect = document.createElement("select");
+    daySelect.name = "dropoffDay";
+    daySelect.id = "participation-dropoffDay";
+    ["", "Tuesday", "Thursday"].forEach((value, index) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = index === 0 ? "Choose a day" : value;
+      daySelect.appendChild(option);
+    });
+
+    const timeLabel = createElement("label", "", "Preferred drop-off time");
+    const timeSelect = document.createElement("select");
+    timeSelect.name = "dropoffTime";
+    timeSelect.id = "participation-dropoffTime";
+    ["", "12:00 PM", "4:00 PM"].forEach((value, index) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = index === 0 ? "Choose a time" : value;
+      timeSelect.appendChild(option);
+    });
+
+    addField("Number or quantity of items (optional)", "quantity", "number", false, {
+      min: 1,
+      placeholder: "For example: 10"
+    });
+    addField("Additional notes", "notes", "textarea", false, {
+      maxLength: 1000,
+      placeholder: "Tell us about your donation or how you would like to volunteer."
+    });
+
+    const consent = createElement("label", "event-consent");
+    const consentCheck = document.createElement("input");
+    consentCheck.type = "checkbox";
+    consentCheck.name = "consent";
+    consentCheck.value = "true";
+    consentCheck.required = true;
+    consent.append(consentCheck, createElement(
+      "span",
+      "",
+      "I agree to share this information with Banāt al-Ummah for event coordination."
+    ));
+
+    const submit = createElement("button", "btn btn-primary", "Submit Participation");
+    submit.type = "submit";
+    const status = createElement("p", "event-form-status");
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    const honeypot = createElement("label", "event-honeypot", "Leave this field empty");
+    honeypot.setAttribute("aria-hidden", "true");
+    const website = document.createElement("input");
+    website.name = "website";
+    website.type = "text";
+    website.tabIndex = -1;
+    website.autocomplete = "off";
+    honeypot.appendChild(website);
+
+    const targetName = "bau-giveaway-registration";
+    form.target = targetName;
+    const iframe = document.createElement("iframe");
+    iframe.name = targetName;
+    iframe.title = "Community giveaway registration submission";
+    iframe.hidden = true;
+    iframe.setAttribute("aria-hidden", "true");
+
+    form.append(...fields);
+    form.append(participationLabel, participationGroup, itemsLabel, itemsGroup);
+    form.append(dayLabel, daySelect, timeLabel, timeSelect);
+    form.append(consent, honeypot, submit, status, iframe);
+
+    let submissionPending = false;
+    let submissionTimeout = null;
+
+    function updateDropoffRequirements() {
+      const selected = form.querySelector('input[name="participation"]:checked');
+      const needsDropoff = selected && selected.value !== "Volunteer";
+      dayLabel.hidden = !needsDropoff;
+      daySelect.hidden = !needsDropoff;
+      timeLabel.hidden = !needsDropoff;
+      timeSelect.hidden = !needsDropoff;
+      daySelect.required = needsDropoff;
+      timeSelect.required = needsDropoff;
+      if (!needsDropoff) {
+        daySelect.value = "";
+        timeSelect.value = "";
+      }
+    }
+
+    participationGroup.querySelectorAll('input[name="participation"]').forEach(radio => {
+      radio.addEventListener("change", updateDropoffRequirements);
+    });
+    updateDropoffRequirements();
+
+    iframe.addEventListener("load", () => {
+      if (!submissionPending) return;
+      window.clearTimeout(submissionTimeout);
+      submissionPending = false;
+      submit.disabled = false;
+      submit.textContent = "Submit Participation";
+      status.textContent =
+        "Jazakum Allahu khayran! Your registration has been received. Thank you for supporting Banat Al-Ummah. We appreciate your generosity and look forward to seeing you.";
+      form.reset();
+      updateDropoffRequirements();
+    });
+
+    iframe.addEventListener("error", () => {
+      if (!submissionPending) return;
+      window.clearTimeout(submissionTimeout);
+      submissionPending = false;
+      submit.disabled = false;
+      submit.textContent = "Submit Participation";
+      status.textContent =
+        "We could not submit your registration. Please check your connection and try again.";
+    });
+
+    form.addEventListener("submit", submitEvent => {
+      submitEvent.preventDefault();
+      if (website.value) {
+        status.textContent = "Your request could not be processed.";
+        return;
+      }
+      if (submissionPending) return;
+      updateDropoffRequirements();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      if (!navigator.onLine) {
+        status.textContent =
+          "You appear to be offline. Please restore your connection and try again.";
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = "Submitting…";
+      status.textContent = "Submitting your participation…";
+      submissionPending = true;
+
+      try {
+        form.submit();
+        submissionTimeout = window.setTimeout(() => {
+          if (!submissionPending) return;
+          submissionPending = false;
+          submit.disabled = false;
+          submit.textContent = "Submit Participation";
+          status.textContent =
+            "We could not confirm the submission. Please try again; your entered information is still below.";
+        }, 30000);
+      } catch {
+        submissionPending = false;
+        submit.disabled = false;
+        submit.textContent = "Submit Participation";
+        status.textContent =
+          "We could not initiate the submission. Please try again; your entered information has been preserved.";
+      }
+    });
+    return form;
+  }
+
+  function createParticipationSection(event) {
+    if (!event.participationFormEnabled) return null;
+    const section = createElement("section", "event-detail-section event-participation");
+    section.id = "event-registration";
+    section.appendChild(
+      createSectionHeading("Register to Donate or Volunteer", "Community participation")
+    );
+    section.appendChild(createElement(
+      "p",
+      "event-participation-intro",
+      "For item donations, choose a preferred Tuesday or Thursday drop-off. The exact location will be shared once finalized."
+    ));
+    section.appendChild(createDonationDeadlineNotice(event));
+    section.appendChild(createParticipationForm(event));
+    return section;
+  }
+
   function createRegistrationLink(event, className) {
     if (event.registrationUrl) {
       return createExternalLink(
@@ -725,6 +1048,22 @@
 
   function createDetailActions(event) {
     const actions = createElement("div", "event-detail-actions");
+    if (event.donationUrl) {
+      actions.appendChild(
+        createElement("a", "btn btn-primary", event.donationLabel || "Donate Financially")
+      );
+      actions.lastElementChild.href = event.donationUrl;
+    }
+    if (event.participationFormEnabled) {
+      const registerLink = createElement(
+        "a",
+        "btn btn-outline",
+        "Register"
+      );
+      registerLink.href = "#event-registration";
+      registerLink.setAttribute("aria-label", "Register to donate items or volunteer");
+      actions.appendChild(registerLink);
+    }
     const registration = createRegistrationLink(event, "btn btn-primary");
     if (registration) actions.appendChild(registration);
     if (event.paymentUrl) {
@@ -773,7 +1112,11 @@
     const benefits = createBenefitsSection(event);
     const progression = createProgressionSection(event);
     const faq = createFaqSection(event);
-    [facts, benefits, progression, faq]
+    const donationInfo = createDonationInfoSection(event);
+    const donationRequirements = createDonationRequirementsSection(event);
+    const dropoff = createDropoffSection(event);
+    const participation = createParticipationSection(event);
+    [facts, donationInfo, donationRequirements, dropoff, benefits, progression, faq, participation]
       .filter(Boolean)
       .forEach(section => article.appendChild(section));
 

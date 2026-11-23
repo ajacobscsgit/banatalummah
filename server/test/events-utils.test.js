@@ -20,39 +20,40 @@ function nextWednesday() {
 }
 
 test("event data opens Arabic class registration and keeps five placeholders closed", () => {
-  assert.equal(EVENTS.length, 6);
-  assert.equal(EVENTS[0].id, "weekly-arabic-classes");
-  assert.equal(EVENTS[0].title, "Egyptian Arabic Classes");
-  assert.equal(EVENTS[0].subtitle, "Level 1 | Egyptian Arabic Classes");
-  assert.equal(EVENTS[0].registrationEnabled, false);
-  assert.equal(EVENTS[0].statusLabel, "Registration Open");
-  assert.equal(EVENTS[0].heroBadge, "CURRENTLY ENROLLING · LEVEL 1");
-  assert.equal(EVENTS[0].priceInCents, 1100);
-  assert.equal(EVENTS[0].monthlyPriceInCents, 4000);
-  assert.equal(EVENTS[0].capacityPerSession, 15);
-  assert.equal(EVENTS[0].firstSessionDate, "2026-11-25");
-  assert.equal(EVENTS[0].lastSessionDate, "2027-05-26");
+  assert.equal(EVENTS.length, 7);
+  const arabic = EVENTS.find(event => event.id === "weekly-arabic-classes");
+  assert.ok(arabic);
+  assert.equal(arabic.title, "Egyptian Arabic Classes");
+  assert.equal(arabic.subtitle, "Level 1 | Egyptian Arabic Classes");
+  assert.equal(arabic.registrationEnabled, false);
+  assert.equal(arabic.statusLabel, "Registration Open");
+  assert.equal(arabic.heroBadge, "CURRENTLY ENROLLING · LEVEL 1");
+  assert.equal(arabic.priceInCents, 1100);
+  assert.equal(arabic.monthlyPriceInCents, 4000);
+  assert.equal(arabic.capacityPerSession, 15);
+  assert.equal(arabic.firstSessionDate, "2026-11-25");
+  assert.equal(arabic.lastSessionDate, "2027-05-26");
   assert.equal(
-    new Date(`${EVENTS[0].lastSessionDate}T12:00:00Z`).getUTCDay(),
+    new Date(`${arabic.lastSessionDate}T12:00:00Z`).getUTCDay(),
     3
   );
-  assert.equal(EVENTS[0].location, "Cleveland, Ohio");
+  assert.equal(arabic.location, "Cleveland, Ohio");
   assert.equal(
-    EVENTS[0].registrationUrl,
+    arabic.registrationUrl,
     "https://docs.google.com/forms/d/e/1FAIpQLSczB6kg91zSdDwvDgb9an7Bg6RRvHMKbT_EhzQlFbY5mgM12g/viewform"
   );
   assert.equal(
-    EVENTS[0].paymentUrl,
+    arabic.paymentUrl,
     "https://buy.stripe.com/7sYbJ0bCs8Yjb045oX08g01"
   );
-  assert.equal(EVENTS[0].firstPaymentDue, "November 20, 2026, 11:59 PM");
+  assert.equal(arabic.firstPaymentDue, "November 20, 2026, 11:59 PM");
   assert.equal(
-    EVENTS[0].details.find(([label]) => label === "Current level")[1],
+    arabic.details.find(([label]) => label === "Current level")[1],
     "Level 1 | Egyptian Arabic · Beginner"
   );
-  assert.equal(EVENTS[0].parking, undefined);
+  assert.equal(arabic.parking, undefined);
   assert.equal(
-    EVENTS[0].details.find(([label]) => label === "Location")[1],
+    arabic.details.find(([label]) => label === "Location")[1],
     "Cleveland, Ohio, exact address provided privately to confirmed participants"
   );
   assert.equal(EVENTS.filter(event => event.kind === "placeholder").length, 5);
@@ -64,6 +65,22 @@ test("event data opens Arabic class registration and keeps five placeholders clo
     EVENTS.filter(event => event.kind === "placeholder")
       .every(event => !event.firstSessionDate && !event.priceInCents)
   );
+});
+
+test("community giveaway is featured and includes donation details", () => {
+  const giveaway = EVENTS.find(
+    event => event.id === "community-giveaway-donation-drive"
+  );
+  assert.ok(giveaway);
+  assert.equal(giveaway.featured, true);
+  assert.equal(giveaway.title, "Community Giveaway & Donation Drive");
+  assert.equal(giveaway.donationDeadline, "2026-12-10");
+  assert.equal(giveaway.dropoffLocation, "Drop-Off Location Coming Soon");
+  assert.equal(giveaway.donationUrl, "donate.html");
+  assert.equal(giveaway.participationFormEnabled, true);
+  assert.equal(giveaway.dropoffSchedule.length, 4);
+  assert.equal(giveaway.acceptedItems.length, 8);
+  assert.ok(giveaway.donationRequirements.length >= 6);
 });
 
 test("email validation rejects malformed and oversized values", () => {
